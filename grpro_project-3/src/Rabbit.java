@@ -1,49 +1,69 @@
-import itumulator.simulator.Actor;  
-import itumulator.world.World; 
+import itumulator.simulator.Actor; 
 import itumulator.world.Location;
+import itumulator.world.World;
+import java.util.*;
 
 public class Rabbit implements Actor {
-   private  int age; 
-   private  int energy; 
-   private int lastAgeDay;
-
-   public Rabbit() {
+    private int age; 
+    private int energy; 
+    private boolean wasNight = false;
+    
+    public Rabbit() {
         this.age = 0; 
         this.energy = 10; 
-        this.lastAgeDay = -1;
     }
 
     @Override 
     public void act(World world) {
-    if (world.isDay()) { 
-       int currentDay = world.getCurrentTime() / World.getTotalDayDuration();
-                 if (currentDay > lastAgeDay) {
-                     age++;
-                     lastAgeDay = currentDay;
-                     updateEnergy(world);
-                        if (age >= 12) {
-                         return;
-                        }
-                  } 
-       
+        System.out.println("Kaninen får en tur");
+        if (world.isDay() && wasNight) { // Hvis det er dag nu, og det var nat ved sidste tur, er en ny dag begyndt.
+            
+            age++; // Kaninen bliver ældre med 1 år.
+
+            if(age >= 12) {
+            world.delete(this); // Fjerner kaninen fra verdenen, hvis den er 12 år eller ældre.
+            return; // Afslutter metoden, så der ikke udføres yderligere handlinger for denne tur.
+            }
     
-     Location location = world.getLocation(this);
-     Object food = world.getNonBlocking(location); 
+            updateEnergy(world); // Opdaterer energien baseret på den nye alder.
         
+        } 
+
+        wasNight = world.isNight(); // Opdaterer wasNight for at holde styr på, om det er nat eller dag i næste tur.
         
-        if (food instanceof Grass) {
-            world.delete(food); 
-            this.energy++; 
+        Location location = world.getLocation(this);
+
+        Set<Location> emptyLocations =
+        world.getEmptySurroundingTiles(location);
+
+        if (!emptyLocations.isEmpty()) {
+            List<Location> locations = new ArrayList<>(emptyLocations);
+            Random random = new Random();
+
+            Location randomLocation = locations.get(random.nextInt(locations.size()));
+            System.out.println("Før: " + world.getLocation(this));
+
+            world.move(this, randomLocation); // Flytter denne kanin til det valgte tile
+
+            System.out.println("Efter: " + world.getLocation(this));
+        }
+
+        location = world.getLocation(this); // Opdaterer location efter flytning
+        Object food = world.getNonBlocking(location); // henter den Tile hvor kaninen står, og tjekker om der er noget (nonBlocking-objekt) på den.
+        
+
+        if (food instanceof Grass) { // tjekker om food er et Grass-objekt 
+            world.delete(food); // fjerner græsset, fordi kaninen spiser det
+            this.energy++; // kaninen får 1 energi.
         } else {
-            this.energy--; 
+            this.energy--; //kaninen mister 1 energi, fordi den ikke spiser noget.
         } 
 
         if(energy <= 0) {
             world.delete(this);
-             return;
         }
-        } 
-    }
+    } 
+    
     public void updateEnergy(World world) {
         if ( age >= 1 && age <= 5) { 
             energy = 10; 

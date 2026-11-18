@@ -1,13 +1,12 @@
-import java.awt.Color;
-
 import itumulator.executable.DisplayInformation;
 import itumulator.executable.Program;
 import itumulator.world.Location;
 import itumulator.world.World;
-import java.util.Random;
-import java.util.Scanner;
+import java.awt.Color;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.util.Random;
+import java.util.Scanner;
 
 
 public class Main {
@@ -45,7 +44,7 @@ public class Main {
             int y = random.nextInt(size); 
             Location randomLocation = new Location(x, y);
 
-            while (!w.isTileEmpty(randomLocation)) {
+            while (w.containsNonBlocking(randomLocation)) {
                 x = random.nextInt(size);
                 y = random.nextInt(size);
                 randomLocation = new Location(x, y);
@@ -73,17 +72,18 @@ public class Main {
 
             }
           
-            p.setDisplayInformation(Rabbit.class, new DisplayInformation(Color.WHITE, "rabbit-small")); 
+            p.setDisplayInformation(Rabbit.class, new DisplayInformation(Color.WHITE, "rabbit-large")); 
 
             p.show();
+            
 
         
     }
 
     private static int getRandomCount(String range, Random random) {
-        String[] parts = range.split("-");
-        int min = Integer.parseInt(parts[0]);
+        String[] parts = range.split("-"); // deleter fx 6-8 i 6 og 8, så vi kan bruge dem som min og max
+        int min = Integer.parseInt(parts[0]); // laver vi 6 og 8 om yil int frodi de var strings før
         int max = Integer.parseInt(parts[1]);
-        return random.nextInt(max - min + 1) + min;
+        return random.nextInt(max - min + 1) + min; // Fx 6-8: vælger 0, 1 eller 2 og lægger 6 til, så resultatet bliver 6, 7 eller 8
     }
 }
