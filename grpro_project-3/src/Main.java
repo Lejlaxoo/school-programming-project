@@ -13,10 +13,6 @@ import java.io.FileNotFoundException;
 public class Main {
 
     public static void main(String[] args) throws FileNotFoundException {
-         System.out.println("GRASS: " +  Main.class.getResource("/images/grass.png"));
-
-        System.out.println("RABBIT: " + Main.class.getResource("/images/rabbit-small.png"));
-
         int size;
         int grassCount; 
         String grass;
