@@ -14,28 +14,33 @@ public class Main {
     public static void main(String[] args) throws FileNotFoundException {
         int size;
         int grassCount; 
-        String grass;
+        String type;
         String rabbitName; 
         int rabbitCount;
-        int holeCount;
-        String burrow;
+        int count;
+
 
         Random random = new Random(); 
        
-         try (Scanner scanner = new Scanner(new File("Data/tf1-1.txt"))) {
+         try (Scanner scanner = new Scanner(new File("Data/t1-3a.txt"))) {
             size = scanner.nextInt();
+            type = scanner.next(); 
 
-            burrow = scanner.next();
-            holeCount = scanner.nextInt();
-
-            grass = scanner.next();     
-            String grassRange = scanner.next();
-            grassCount = getRandomCount(grassRange, random);
-
+            String Range = scanner.next();
+            if(Range.contains("-")){
+                count = getRandomCount(Range, random);
+            } else {
+                count = Integer.parseInt(Range);
+            }
 
             rabbitName = scanner.next();
             String rabbitRange = scanner.next();
-            rabbitCount = getRandomCount(rabbitRange, random);
+            
+            if(rabbitRange.contains("-")) {
+                rabbitCount = getRandomCount(rabbitRange, random);
+            } else {
+                rabbitCount  = Integer.parseInt(rabbitRange);
+            }
 
         } catch (FileNotFoundException e) {
             System.out.println("File not found: " + e.getMessage());
@@ -47,7 +52,7 @@ public class Main {
         World w = p.getWorld();  
 
 
-        for (int i = 0; i < grassCount; i++) {
+        for (int i = 0; i < count; i++) {
             int x = random.nextInt(size);
             int y = random.nextInt(size); 
             Location randomLocation = new Location(x, y);
@@ -58,12 +63,16 @@ public class Main {
                 randomLocation = new Location(x, y);
             }
             
-            w.setTile(randomLocation, new Grass()); 
+            if (type.equals("grass")) {
+                w.setTile(randomLocation, new Grass());
+            } else if (type.equals("burrow")) {
+                holeDigging(w, randomLocation);
+            } 
 
         }
-
             p.setDisplayInformation( Grass.class, new DisplayInformation(new Color(1, 142, 66), "grass"));
-          
+            p.setDisplayInformation(RabbitHole.class, new DisplayInformation(Color.magenta, "hole")); 
+
           for (int i = 0; i < rabbitCount; i++) {
             int x = random.nextInt(size);
             int y = random.nextInt(size); 
@@ -84,23 +93,6 @@ public class Main {
             p.setDisplayInformation(SmallRabbit.class, new DisplayInformation(Color.WHITE, "rabbit-small"));
 
 
-            for (int i = 0; i < holeCount; i++) {
-            int x = random.nextInt(size);
-            int y = random.nextInt(size); 
-            
-            Location randomLocation = new Location(x, y);
-
-                while (!w.isTileEmpty(randomLocation)) {
-                    x = random.nextInt(size);
-                    y = random.nextInt(size);
-                    randomLocation = new Location(x, y);
-                }
-                RabbitHole hole = new RabbitHole();
-                w.setTile(randomLocation, hole); 
-
-            }
-            p.setDisplayInformation(RabbitHole.class, new DisplayInformation(Color.magenta, "hole")); 
-
           
             p.show();
             
@@ -113,5 +105,11 @@ public class Main {
         int min = Integer.parseInt(parts[0]); // laver vi 6 og 8 om yil int frodi de var strings før
         int max = Integer.parseInt(parts[1]);
         return random.nextInt(max - min + 1) + min; // Fx 6-8: vælger 0, 1 eller 2 og lægger 6 til, så resultatet bliver 6, 7 eller 8
+    }
+
+    private static void holeDigging(World world, Location place) {
+    world.setTile(place, new RabbitHole());
+    System.out.println("Hul placeret på: " + place);
+    System.out.println(world.getNonBlocking(place) instanceof RabbitHole);
     }
 }

@@ -62,7 +62,6 @@ public abstract class Animal implements Actor {
 
         } else {
 
-            holeDigging(world); // Hvis der ikke er græs, forsøger kaninen at grave et kaninhul
             this.energy--; //kaninen mister 1 energi, fordi den ikke spiser noget.
         } 
 
@@ -95,5 +94,15 @@ public abstract class Animal implements Actor {
         world.setTile(location, newRabbitHole); // Placerer det nye kaninhul
 
         rabbitHole = newRabbitHole; // Gemmer referencen til kaninhullet i kaninen, så den ved, at den har et kaninhul.
+    }
+
+    public void findRabbitHole(ArrayList<RabbitHole> rabbitHoles) {
+        if(rabbitHole != null) {
+            return; // Kaninen har allerede et kaninhul, så den behøver ikke at finde et nyt.
+        }
+        if(!rabbitHoles.isEmpty()) {
+            Random random = new Random();
+            rabbitHole = rabbitHoles.get(random.nextInt(rabbitHoles.size())); // Vælger et tilfældigt kaninhul fra listen
+        }
     }
 }
