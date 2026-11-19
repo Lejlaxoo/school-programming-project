@@ -19,7 +19,14 @@ public class BigRabbit extends Animal {
         if(!updateAge(world)) {
             return; // Afslutter metoden, hvis kaninen er død.
         }
-
+        if (world.isDay()) {
+            wakeUp(world);
+        }
+         if (!world.isOnTile(this)) {
+            wasNight = world.isNight(); 
+            return;
+        }
+        
         if(world.isNight() && !hasReproduced) {
             reproduce(world); // Reproducerer kun om natten og hvis den ikke allerede har reproduceret i denne cyklus
         }

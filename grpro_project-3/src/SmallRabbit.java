@@ -7,6 +7,14 @@ public class SmallRabbit extends Animal {
         if(!updateAge(world)) {
             return; // Afslutter metoden, hvis kaninen er død.
         }
+     if (world.isDay()) {
+            wakeUp(world);
+        }
+       
+        if (!world.isOnTile(this)) {
+            wasNight = world.isNight(); // skal stå før return, ellers ældes kaninen forkert
+            return;
+        }
 
         if(age >= 3){
             Location rabbitLocation = world.getLocation(this);
@@ -24,6 +32,7 @@ public class SmallRabbit extends Animal {
        if (world.isNight()) {
     getRabbitHole(world);
     moveTowardsRabbitHole(world);
+    sleepIfInHole(world);
     } else {
     moveRandomlyandEat(world);
 }

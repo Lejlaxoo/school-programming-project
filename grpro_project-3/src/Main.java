@@ -13,10 +13,9 @@ public class Main {
 
     public static void main(String[] args) throws FileNotFoundException {
     int size;
-    int grassCount;
-    int burrowCount;
-    String rabbitName;
-    int rabbitCount;
+    int grassCount = 0;
+    int burrowCount =0;
+    int rabbitCount = 0;
 
 
         Random random = new Random(); 
@@ -24,19 +23,24 @@ public class Main {
          try (Scanner scanner = new Scanner(new File("Data/t1-3a.txt"))) {
             size = scanner.nextInt();
 
-            String grassRange = scanner.next();
-            grassCount = getRandomCount(grassRange, random);
+            while (scanner.hasNext()) {
+                String type = scanner.next();   // fx "grass", "burrow" eller "rabbit"
+                String range = scanner.next();  // fx "3-5" eller "4"
 
-            String burrowRange = scanner.next();
-            burrowCount = getRandomCount(burrowRange, random);  
+                int count;
+                if (range.contains("-")) {
+                    count = getRandomCount(range, random);
+                } else {
+                    count = Integer.parseInt(range);
+                }
 
-            rabbitName = scanner.next();
-            String rabbitRange = scanner.next();
-            
-            if(rabbitRange.contains("-")) {
-                rabbitCount = getRandomCount(rabbitRange, random);
-            } else {
-                rabbitCount  = Integer.parseInt(rabbitRange);
+                if (type.equals("grass")) {
+                    grassCount = count;
+                } else if (type.equals("burrow")) {
+                    burrowCount = count;
+                } else if (type.equals("rabbit")) {
+                    rabbitCount = count;
+                }
             }
 
         } catch (FileNotFoundException e) {

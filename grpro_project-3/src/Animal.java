@@ -26,6 +26,7 @@ public abstract class Animal implements Actor {
             System.out.println("Kaninen er nu " + age + " år gammel."); // Udskriver kaninens alder til konsollen.
            
             if(age >= 12) {
+             System.out.println("Kanin døde af alderdom");
             world.delete(this); // Fjerner kaninen fra verdenen, hvis den er 12 år eller ældre.
             return false; // Afslutter metoden, så der ikke udføres yderligere handlinger for denne tur.
             }
@@ -62,27 +63,31 @@ public abstract class Animal implements Actor {
             this.energy++; // kaninen får 1 energi.
 
         } else {
-
-            this.energy--; //kaninen mister 1 energi, fordi den ikke spiser noget.
+            if (new Random().nextInt(3) == 0) { // kaninen mister kun energi ca. hver 3. tur uden mad
+         this.energy--;
+}
+            
         } 
 
         if(energy <= 0) {
+            System.out.println("Kanin døde af sult");
             world.delete(this);
         }
     } 
 
-    public void updateEnergy(World world) {
-        if ( age >= 1 && age <= 5) { 
-            energy = 10; 
+     public void updateEnergy(World world) {
+        if ( age >= 1 && age <= 5) {
+            energy = 10;
         } else if (age >= 6 && age <= 10) {
-            energy = 5; 
-        } else if (age == 11) { 
-            energy = 2;   
-        } else { 
-            energy = 0;    
-            world.delete(this); 
-        }  
+            energy = 5;
+        } else if (age == 11) {
+            energy = 2;
+        } else {
+            energy = 0;
+            world.delete(this);
+        }
     }
+
 
     public void holeDigging(World world){
         if(rabbitHole != null) {
@@ -91,8 +96,18 @@ public abstract class Animal implements Actor {
         
 
         Location location = world.getLocation(this);
+         
+        if (world.containsNonBlocking(location)) {
+            Object thing = world.getNonBlocking(location);
+            
+             if (thing instanceof RabbitHole) { 
+                rabbitHole = (RabbitHole) thing;
+                addRabbitHole(rabbitHole);
+                return;
+            }
+              world.delete(thing);
+        }
 
-        
         RabbitHole newRabbitHole = new RabbitHole(); // Opretter et nyt kaninhul
         world.setTile(location, newRabbitHole); // Placerer det nye kaninhul
 
@@ -104,10 +119,10 @@ public abstract class Animal implements Actor {
         if(rabbitHole != null) {
             return; // Kaninen har allerede et kaninhul, så den behøver ikke at finde et nyt.
         }
-        if(!rabbitHoles.isEmpty()) {
-            Random random = new Random();
-            rabbitHole = rabbitHoles.get(random.nextInt(rabbitHoles.size())); // Vælger et tilfældigt kaninhul fra listen
-        } else { 
+        Random random = new Random();
+        if(!rabbitHoles.isEmpty() && random.nextBoolean()) { // 50 %: del et eksisterende hul
+            rabbitHole = rabbitHoles.get(random.nextInt(rabbitHoles.size()));
+        } else {
             holeDigging(world); // Hvis der ikke er nogen kaninhuller, graver kaninen et nyt.
      } 
     } 
@@ -142,8 +157,37 @@ public void moveTowardsRabbitHole(World world) {
             return;
     }   
 }
-} 
-}  
+}
+public void sleepIfInHole(World world) {
+    if (rabbitHole == null || !world.isOnTile(this)) {
+        return;
+    }
+    Location rabbitLocation = world.getLocation(this);
+    Location holeLocation = world.getLocation(rabbitHole);
+
+    if (rabbitLocation.getX() == holeLocation.getX() && rabbitLocation.getY() == holeLocation.getY()) {
+        world.remove(this); // remove = væk fra kortet, men stadig i live (delete = død)
+    }
+}
+public void wakeUp(World world) {
+    if (world.isOnTile(this) || rabbitHole == null) {
+        return; // kaninen er allerede vågen
+    }
+    Location holeLocation = world.getLocation(rabbitHole);
+
+    if (world.isTileEmpty(holeLocation)) {
+        world.setTile(holeLocation, this); // titter frem på hullet
+    } else {
+        Set<Location> emptyLocations = world.getEmptySurroundingTiles(holeLocation);
+        if (!emptyLocations.isEmpty()) {
+            world.setTile(emptyLocations.iterator().next(), this); // en anden står på hullet → kom op ved siden af
+        }
+    }
+    }
+}
+
+
+
 
 
     
