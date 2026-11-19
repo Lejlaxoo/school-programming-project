@@ -12,26 +12,23 @@ import java.util.Scanner;
 public class Main {
 
     public static void main(String[] args) throws FileNotFoundException {
-        int size;
-        int grassCount; 
-        String type;
-        String rabbitName; 
-        int rabbitCount;
-        int count;
+    int size;
+    int grassCount;
+    int burrowCount;
+    String rabbitName;
+    int rabbitCount;
 
 
         Random random = new Random(); 
        
          try (Scanner scanner = new Scanner(new File("Data/t1-3a.txt"))) {
             size = scanner.nextInt();
-            type = scanner.next(); 
 
-            String Range = scanner.next();
-            if(Range.contains("-")){
-                count = getRandomCount(Range, random);
-            } else {
-                count = Integer.parseInt(Range);
-            }
+            String grassRange = scanner.next();
+            grassCount = getRandomCount(grassRange, random);
+
+            String burrowRange = scanner.next();
+            burrowCount = getRandomCount(burrowRange, random);  
 
             rabbitName = scanner.next();
             String rabbitRange = scanner.next();
@@ -52,7 +49,7 @@ public class Main {
         World w = p.getWorld();  
 
 
-        for (int i = 0; i < count; i++) {
+        for (int i = 0; i < grassCount; i++) {
             int x = random.nextInt(size);
             int y = random.nextInt(size); 
             Location randomLocation = new Location(x, y);
@@ -63,13 +60,9 @@ public class Main {
                 randomLocation = new Location(x, y);
             }
             
-            if (type.equals("grass")) {
-                w.setTile(randomLocation, new Grass());
-            } else if (type.equals("burrow")) {
-                holeDigging(w, randomLocation);
-            } 
+            w.setTile(randomLocation, new Grass()); // Placerer græs på et tilfældigt tile i verdenen
 
-        }
+}
             p.setDisplayInformation( Grass.class, new DisplayInformation(new Color(1, 142, 66), "grass"));
             p.setDisplayInformation(RabbitHole.class, new DisplayInformation(Color.magenta, "hole")); 
 
@@ -86,17 +79,28 @@ public class Main {
                 }
                 SmallRabbit rabbit = new SmallRabbit();
                 w.setTile(randomLocation, rabbit); 
+              
 
             }
-          
+
+             for (int i = 0; i < burrowCount; i++) {
+              int x = random.nextInt(size);
+             int y = random.nextInt(size);
+             Location randomLocation = new Location(x, y);
+
+                while (!w.isTileEmpty(randomLocation) ||
+                    w.containsNonBlocking(randomLocation)) {
+                     x = random.nextInt(size);
+                      y = random.nextInt(size);
+    randomLocation = new Location(x, y);
+}
+             holeDigging(w, randomLocation);
+
+}
             p.setDisplayInformation(BigRabbit.class, new DisplayInformation(Color.WHITE, "rabbit-large")); 
             p.setDisplayInformation(SmallRabbit.class, new DisplayInformation(Color.WHITE, "rabbit-small"));
-
-
           
-            p.show();
-            
-        
+         p.show(); 
     }
 
 
@@ -108,8 +112,8 @@ public class Main {
     }
 
     private static void holeDigging(World world, Location place) {
-    world.setTile(place, new RabbitHole());
-    System.out.println("Hul placeret på: " + place);
-    System.out.println(world.getNonBlocking(place) instanceof RabbitHole);
-    }
+    RabbitHole hole = new RabbitHole();
+    world.setTile(place, hole);
+    Animal.addRabbitHole(hole);
+}
 }

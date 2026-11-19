@@ -8,6 +8,7 @@ public abstract class Animal implements Actor {
     protected int energy; 
     protected boolean wasNight = false;
     protected RabbitHole rabbitHole;
+    protected static ArrayList<RabbitHole> rabbitHoles = new ArrayList<>();
     
     public Animal() {
         this.age = 0; 
@@ -85,8 +86,9 @@ public abstract class Animal implements Actor {
 
     public void holeDigging(World world){
         if(rabbitHole != null) {
-          return; // Kaninen har allerede et kaninhul, så den kan ikke grave et nyt.
-        }
+          return; // Kaninen har allerede et kaninhul, så den kan ikke grave et nyt.  
+        } 
+        
 
         Location location = world.getLocation(this);
 
@@ -95,15 +97,53 @@ public abstract class Animal implements Actor {
         world.setTile(location, newRabbitHole); // Placerer det nye kaninhul
 
         rabbitHole = newRabbitHole; // Gemmer referencen til kaninhullet i kaninen, så den ved, at den har et kaninhul.
+         addRabbitHole(newRabbitHole); 
     }
 
-    public void findRabbitHole(ArrayList<RabbitHole> rabbitHoles) {
+    public void findRabbitHole(ArrayList<RabbitHole> rabbitHoles, World world) {
         if(rabbitHole != null) {
             return; // Kaninen har allerede et kaninhul, så den behøver ikke at finde et nyt.
         }
         if(!rabbitHoles.isEmpty()) {
             Random random = new Random();
             rabbitHole = rabbitHoles.get(random.nextInt(rabbitHoles.size())); // Vælger et tilfældigt kaninhul fra listen
-        }
+        } else { 
+            holeDigging(world); // Hvis der ikke er nogen kaninhuller, graver kaninen et nyt.
+     } 
+    } 
+    public static void addRabbitHole(RabbitHole rabbitHole) {
+    if (!rabbitHoles.contains(rabbitHole)) {
+        rabbitHoles.add(rabbitHole);
     }
 }
+
+public void getRabbitHole(World world) {
+    if (rabbitHole != null) {
+        return;
+    }
+    findRabbitHole(rabbitHoles, world);
+}
+ 
+public void moveTowardsRabbitHole(World world) {
+    if (rabbitHole == null) {
+        return;
+    }
+    Location rabbitLocation = world.getLocation(this);
+    Location holeLocation = world.getLocation(rabbitHole);
+
+    Set<Location> locations =
+            world.getEmptySurroundingTiles(rabbitLocation);
+
+    for (Location location : locations) {
+        if ((holeLocation.getX() > rabbitLocation.getX() && location.getX() > rabbitLocation.getX()) || (holeLocation.getX() < rabbitLocation.getX() && location.getX() < rabbitLocation.getX()) ||
+            (holeLocation.getY() > rabbitLocation.getY() && location.getY() > rabbitLocation.getY()) || (holeLocation.getY() < rabbitLocation.getY() && location.getY() < rabbitLocation.getY())) { 
+
+                 world.move(this, location);
+            return;
+    }   
+}
+} 
+}  
+
+
+    

@@ -28,10 +28,14 @@ public class BigRabbit extends Animal {
             hasReproduced = false; // Reset reproduktion flag om dagen
         }
 
-        wasNight = world.isNight(); // Opdaterer wasNight for at holde styr på, om det er nat eller dag i næste tur.
-
-    
+        if (world.isNight()) {
+        getRabbitHole(world);
+        moveTowardsRabbitHole(world);
+    } else {
         moveRandomlyandEat(world);
+}
+
+    wasNight = world.isNight();
 
     }
 

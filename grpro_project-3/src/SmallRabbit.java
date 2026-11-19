@@ -21,12 +21,13 @@ public class SmallRabbit extends Animal {
             world.setTile(rabbitLocation, bigRabbit); // Opgraderer kaninen til en BigRabbit, hvis den er 3 år gammel.
             return; // Afslutter metoden, da kaninen nu er blevet opgraderet.
         }
-
-        wasNight = world.isNight(); // Opdaterer wasNight for at holde styr på, om det er nat eller dag i næste tur.
-
-    
-        moveRandomlyandEat(world);
+       if (world.isNight()) {
+    getRabbitHole(world);
+    moveTowardsRabbitHole(world);
+    } else {
+    moveRandomlyandEat(world);
 }
 
+wasNight = world.isNight(); 
 }
-
+}
