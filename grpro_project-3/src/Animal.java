@@ -3,12 +3,12 @@ import itumulator.world.Location;
 import itumulator.world.World;
 import java.util.*;
 
-public class Rabbit implements Actor {
+public class Animal implements Actor {
     private int age; 
     private int energy; 
     private boolean wasNight = false;
     
-    public Rabbit() {
+    public Animal() {
         this.age = 0; 
         this.energy = 10; 
     }
@@ -16,10 +16,7 @@ public class Rabbit implements Actor {
     @Override 
     public void act(World world) {
 
-        if(world.isNight()) {
-            reproduce(world); // Kalder reproduce-metoden, hvis det er nat.
-        }
-        
+    
         if (world.isDay() && wasNight) { // Hvis det er dag nu, og det var nat ved sidste tur, er en ny dag begyndt.
             
             age++; // Kaninen bliver ældre med 1 år.
@@ -65,21 +62,6 @@ public class Rabbit implements Actor {
             world.delete(this);
         }
     } 
-
-    public void reproduce(World world) {
-        Rabbit babyRabbit = new Rabbit();
-        Location location = world.getLocation(this);
-        Set<Location> emptyLocations = world.getEmptySurroundingTiles(location);
-
-        if (!emptyLocations.isEmpty()) {
-            List<Location> locations = new ArrayList<>(emptyLocations);
-
-            Random random = new Random();
-            Location babyLocation = locations.get(random.nextInt(locations.size()));
-
-            world.setTile(babyLocation, babyRabbit); // Placerer baby kaninen på et tilfældigt tomt tile omkring forælderen
-        }
-    }
     
     public void updateEnergy(World world) {
         if ( age >= 1 && age <= 5) { 

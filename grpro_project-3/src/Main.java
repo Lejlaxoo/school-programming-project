@@ -68,12 +68,13 @@ public class Main {
                     y = random.nextInt(size);
                     randomLocation = new Location(x, y);
                 }
-                Rabbit rabbit = new Rabbit();
+                Animal rabbit = new Animal();
                 w.setTile(randomLocation, rabbit); 
 
             }
           
-            p.setDisplayInformation(Rabbit.class, new DisplayInformation(Color.WHITE, "rabbit-large")); 
+            p.setDisplayInformation(Animal.class, new DisplayInformation(Color.WHITE, "rabbit-large")); 
+            p.setDisplayInformation(Animal.class, new DisplayInformation(Color.WHITE, "rabbit-small"));
 
             p.show();
             
