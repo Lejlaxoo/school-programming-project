@@ -39,12 +39,6 @@ public class Main {
         
         World w = p.getWorld();  
 
-        if(w.isNight()){
-            reproduce(rabbitCount);
-            p.setDisplayInformation(Rabbit.class, new DisplayInformation(Color.WHITE, "rabbit-small")); 
-
-        }
-
 
         for (int i = 0; i < grassCount; i++) {
             int x = random.nextInt(size);
@@ -83,13 +77,9 @@ public class Main {
 
             p.show();
             
-
         
     }
 
-    public static void reproduce( int rabbitCount){
-        rabbitCount = rabbitCount + 2;
-    }
 
     private static int getRandomCount(String range, Random random) {
         String[] parts = range.split("-"); // deleter fx 6-8 i 6 og 8, så vi kan bruge dem som min og max

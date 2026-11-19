@@ -15,6 +15,11 @@ public class Rabbit implements Actor {
 
     @Override 
     public void act(World world) {
+
+        if(world.isNight()) {
+            reproduce(world); // Kalder reproduce-metoden, hvis det er nat.
+        }
+        
         if (world.isDay() && wasNight) { // Hvis det er dag nu, og det var nat ved sidste tur, er en ny dag begyndt.
             
             age++; // Kaninen bliver ældre med 1 år.
@@ -61,6 +66,20 @@ public class Rabbit implements Actor {
         }
     } 
 
+    public void reproduce(World world) {
+        Rabbit babyRabbit = new Rabbit();
+        Location location = world.getLocation(this);
+        Set<Location> emptyLocations = world.getEmptySurroundingTiles(location);
+
+        if (!emptyLocations.isEmpty()) {
+            List<Location> locations = new ArrayList<>(emptyLocations);
+
+            Random random = new Random();
+            Location babyLocation = locations.get(random.nextInt(locations.size()));
+
+            world.setTile(babyLocation, babyRabbit); // Placerer baby kaninen på et tilfældigt tomt tile omkring forælderen
+        }
+    }
     
     public void updateEnergy(World world) {
         if ( age >= 1 && age <= 5) { 
