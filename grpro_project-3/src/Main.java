@@ -39,6 +39,13 @@ public class Main {
         
         World w = p.getWorld();  
 
+        if(w.isNight()){
+            reproduce(rabbitCount);
+            p.setDisplayInformation(Rabbit.class, new DisplayInformation(Color.WHITE, "rabbit-small")); 
+
+        }
+
+
         for (int i = 0; i < grassCount; i++) {
             int x = random.nextInt(size);
             int y = random.nextInt(size); 
@@ -78,6 +85,10 @@ public class Main {
             
 
         
+    }
+
+    public static void reproduce( int rabbitCount){
+        rabbitCount = rabbitCount + 2;
     }
 
     private static int getRandomCount(String range, Random random) {

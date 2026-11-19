@@ -15,7 +15,6 @@ public class Rabbit implements Actor {
 
     @Override 
     public void act(World world) {
-        System.out.println("Kaninen får en tur");
         if (world.isDay() && wasNight) { // Hvis det er dag nu, og det var nat ved sidste tur, er en ny dag begyndt.
             
             age++; // Kaninen bliver ældre med 1 år.
@@ -41,11 +40,9 @@ public class Rabbit implements Actor {
             Random random = new Random();
 
             Location randomLocation = locations.get(random.nextInt(locations.size()));
-            System.out.println("Før: " + world.getLocation(this));
 
             world.move(this, randomLocation); // Flytter denne kanin til det valgte tile
 
-            System.out.println("Efter: " + world.getLocation(this));
         }
 
         location = world.getLocation(this); // Opdaterer location efter flytning
@@ -63,6 +60,7 @@ public class Rabbit implements Actor {
             world.delete(this);
         }
     } 
+
     
     public void updateEnergy(World world) {
         if ( age >= 1 && age <= 5) { 
