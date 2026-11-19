@@ -90,6 +90,7 @@ public abstract class Animal implements Actor {
 
         Location location = world.getLocation(this);
 
+        
         RabbitHole newRabbitHole = new RabbitHole(); // Opretter et nyt kaninhul
         world.setTile(location, newRabbitHole); // Placerer det nye kaninhul
 
