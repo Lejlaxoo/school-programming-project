@@ -17,14 +17,21 @@ public class Main {
         String grass;
         String rabbitName; 
         int rabbitCount;
+        int holeCount;
+        String burrow;
 
         Random random = new Random(); 
        
-         try (Scanner scanner = new Scanner(new File("Data/t1-2cde.txt"))) {
+         try (Scanner scanner = new Scanner(new File("Data/tf1-1.txt"))) {
             size = scanner.nextInt();
+
+            burrow = scanner.next();
+            holeCount = scanner.nextInt();
+
             grass = scanner.next();     
             String grassRange = scanner.next();
             grassCount = getRandomCount(grassRange, random);
+
 
             rabbitName = scanner.next();
             String rabbitRange = scanner.next();
@@ -76,6 +83,25 @@ public class Main {
             p.setDisplayInformation(BigRabbit.class, new DisplayInformation(Color.WHITE, "rabbit-large")); 
             p.setDisplayInformation(SmallRabbit.class, new DisplayInformation(Color.WHITE, "rabbit-small"));
 
+
+            for (int i = 0; i < holeCount; i++) {
+            int x = random.nextInt(size);
+            int y = random.nextInt(size); 
+            
+            Location randomLocation = new Location(x, y);
+
+                while (!w.isTileEmpty(randomLocation)) {
+                    x = random.nextInt(size);
+                    y = random.nextInt(size);
+                    randomLocation = new Location(x, y);
+                }
+                RabbitHole hole = new RabbitHole();
+                w.setTile(randomLocation, hole); 
+
+            }
+            p.setDisplayInformation(RabbitHole.class, new DisplayInformation(Color.magenta, "hole")); 
+
+          
             p.show();
             
         

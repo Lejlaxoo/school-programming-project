@@ -7,10 +7,12 @@ public abstract class Animal implements Actor {
     protected int age; 
     protected int energy; 
     protected boolean wasNight = false;
+    protected RabbitHole rabbitHole;
     
     public Animal() {
         this.age = 0; 
         this.energy = 10; 
+        this.rabbitHole = null;
     }
 
     @Override 
@@ -54,9 +56,13 @@ public abstract class Animal implements Actor {
         
 
         if (food instanceof Grass) { // tjekker om food er et Grass-objekt 
+            
             world.delete(food); // fjerner græsset, fordi kaninen spiser det
             this.energy++; // kaninen får 1 energi.
+
         } else {
+
+            holeDigging(world); // Hvis der ikke er græs, forsøger kaninen at grave et kaninhul
             this.energy--; //kaninen mister 1 energi, fordi den ikke spiser noget.
         } 
 
@@ -64,7 +70,7 @@ public abstract class Animal implements Actor {
             world.delete(this);
         }
     } 
-    
+
     public void updateEnergy(World world) {
         if ( age >= 1 && age <= 5) { 
             energy = 10; 
@@ -76,5 +82,18 @@ public abstract class Animal implements Actor {
             energy = 0;    
             world.delete(this); 
         }  
+    }
+
+    public void holeDigging(World world){
+        if(rabbitHole != null) {
+          return; // Kaninen har allerede et kaninhul, så den kan ikke grave et nyt.
+        }
+
+        Location location = world.getLocation(this);
+
+        RabbitHole newRabbitHole = new RabbitHole(); // Opretter et nyt kaninhul
+        world.setTile(location, newRabbitHole); // Placerer det nye kaninhul
+
+        rabbitHole = newRabbitHole; // Gemmer referencen til kaninhullet i kaninen, så den ved, at den har et kaninhul.
     }
 }
