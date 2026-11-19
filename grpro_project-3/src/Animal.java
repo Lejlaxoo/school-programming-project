@@ -20,7 +20,8 @@ public abstract class Animal implements Actor {
         if (world.isDay() && wasNight) { // Hvis det er dag nu, og det var nat ved sidste tur, er en ny dag begyndt.
             
             age++; // Kaninen bliver ældre med 1 år.
-
+            System.out.println("Kaninen er nu " + age + " år gammel."); // Udskriver kaninens alder til konsollen.
+           
             if(age >= 12) {
             world.delete(this); // Fjerner kaninen fra verdenen, hvis den er 12 år eller ældre.
             return false; // Afslutter metoden, så der ikke udføres yderligere handlinger for denne tur.

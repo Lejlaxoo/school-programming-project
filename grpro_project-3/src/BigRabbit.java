@@ -1,6 +1,5 @@
-import itumulator.wolrd.World;
 import itumulator.world.Location;
-
+import itumulator.world.World;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -14,14 +13,29 @@ public class BigRabbit extends Animal {
         this.age = age;
         this.energy = energy;
     }
-
+     
     @Override
-    public void act(World world) {
+    public void act(itumulator.world.World world) {
         if(!updateAge(world)) {
             return; // Afslutter metoden, hvis kaninen er død.
         }
 
-        public void reproduce(World world) {
+        if(world.isNight() && !hasReproduced) {
+            reproduce(world); // Reproducerer kun om natten og hvis den ikke allerede har reproduceret i denne cyklus
+        }
+
+        if(world.isDay()) {
+            hasReproduced = false; // Reset reproduktion flag om dagen
+        }
+
+        wasNight = world.isNight(); // Opdaterer wasNight for at holde styr på, om det er nat eller dag i næste tur.
+
+    
+        moveRandomlyandEat(world);
+
+    }
+
+    public void reproduce(World world) {
         Location location = world.getLocation(this);
 
         Set<Location> emptyLocations = world.getEmptySurroundingTiles(location);
@@ -33,13 +47,9 @@ public class BigRabbit extends Animal {
             Location babyLocation = locations.get(random.nextInt(locations.size()));
 
             world.setTile(babyLocation, new SmallRabbit()); // Placerer baby kaninen på et tilfældigt tomt tile omkring forælderen
+            
+            hasReproduced = true; // Sætter flaget til true, så kaninen ikke reproducerer igen i denne cyklus
         }   
 
-    }
-        
-        wasNight = world.isNight(); // Opdaterer wasNight for at holde styr på, om det er nat eller dag i næste tur.
-
-        moveRandomlyandEat(world);
-    }
-
+    }   
 }

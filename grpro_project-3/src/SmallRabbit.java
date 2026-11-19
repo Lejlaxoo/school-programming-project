@@ -1,3 +1,4 @@
+import itumulator.world.Location;
 import itumulator.world.World;
 
 public class SmallRabbit extends Animal {
@@ -7,8 +8,16 @@ public class SmallRabbit extends Animal {
             return; // Afslutter metoden, hvis kaninen er død.
         }
 
-        if(age == 6){
-            world.setTile(world.getLocation(this), new BigRabbit(age, energy)); // Opgraderer kaninen til en BigRabbit, hvis den er 6 år gammel.
+        if(age >= 3){
+            Location rabbitLocation = world.getLocation(this);
+
+            BigRabbit bigRabbit = new BigRabbit(age, energy);
+
+            bigRabbit.wasNight = this.wasNight; // Overfører wasNight status til den nye BigRabbit og beholder stye på dag/nat ved overgnagen
+            
+            world.delete(this); // fjerne den lille kanin fra verdenen, da den nu bliver opgraderet til en stor kanin.
+
+            world.setTile(rabbitLocation, bigRabbit); // Opgraderer kaninen til en BigRabbit, hvis den er 3 år gammel.
             return; // Afslutter metoden, da kaninen nu er blevet opgraderet.
         }
 
