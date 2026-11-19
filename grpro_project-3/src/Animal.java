@@ -3,10 +3,10 @@ import itumulator.world.Location;
 import itumulator.world.World;
 import java.util.*;
 
-public class Animal implements Actor {
-    private int age; 
-    private int energy; 
-    private boolean wasNight = false;
+public abstract class Animal implements Actor {
+    protected int age; 
+    protected int energy; 
+    protected boolean wasNight = false;
     
     public Animal() {
         this.age = 0; 
@@ -14,24 +14,25 @@ public class Animal implements Actor {
     }
 
     @Override 
-    public void act(World world) {
+    public abstract void act(World world);
 
-    
+    public boolean updateAge(World world) {
         if (world.isDay() && wasNight) { // Hvis det er dag nu, og det var nat ved sidste tur, er en ny dag begyndt.
             
             age++; // Kaninen bliver ældre med 1 år.
 
             if(age >= 12) {
             world.delete(this); // Fjerner kaninen fra verdenen, hvis den er 12 år eller ældre.
-            return; // Afslutter metoden, så der ikke udføres yderligere handlinger for denne tur.
+            return false; // Afslutter metoden, så der ikke udføres yderligere handlinger for denne tur.
             }
     
             updateEnergy(world); // Opdaterer energien baseret på den nye alder.
         
-        } 
-
-        wasNight = world.isNight(); // Opdaterer wasNight for at holde styr på, om det er nat eller dag i næste tur.
+        }
+        return true; // Returnerer true, hvilket indikerer, at kaninen stadig lever og kan fortsætte med at handle i denne tur.
+    } 
         
+    public void moveRandomlyandEat(World world) {
         Location location = world.getLocation(this);
 
         Set<Location> emptyLocations =
