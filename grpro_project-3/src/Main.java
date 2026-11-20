@@ -115,7 +115,7 @@ public class Main {
         return random.nextInt(max - min + 1) + min; // Fx 6-8: vælger 0, 1 eller 2 og lægger 6 til, så resultatet bliver 6, 7 eller 8
     }
 
-    private static void holeDigging(World world, Location place) {
+    private static void holeDigging(World world, Location place) { // kaninen hul der allerede ligger på kortet når stimulation begynder og kan kaniner bruger det her hul til fx sove
     RabbitHole hole = new RabbitHole();
     world.setTile(place, hole);
     Animal.addRabbitHole(hole);
