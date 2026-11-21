@@ -116,6 +116,23 @@ public class RabbitTest {
        assertSame(first.rabbitHole, second.rabbitHole); // tjekt, at begge kaniner bruger det samme hul
     }
 
+    @Test
+    public void RabbitGoesinHoleatNight() {
+        SmallRabbit rabbit = new SmallRabbit();
+        RabbitHole hole = new RabbitHole();
+        Location location = new Location(0, 0);
+
+        world.setTile(location, hole);
+        world.setTile(location, rabbit);
+        rabbit.rabbitHole = hole; // Giv kaninen det hul, den står på
+        world.setNight();
+
+        rabbit.act(world);
+
+        assertFalse(world.isOnTile(rabbit)); // Kaninen er gået ned i hullet
+        assertSame(hole, world.getNonBlocking(location)); // Hullet ligger stadig på feltet
+    }
+
     @Test 
     public void RabbitMovesToHoleAtNight(){
         SmallRabbit rabbit = new SmallRabbit();
