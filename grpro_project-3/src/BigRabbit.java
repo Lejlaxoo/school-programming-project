@@ -36,11 +36,19 @@ public class BigRabbit extends Animal {
         }
 
         if (world.isNight()) {
-        getRabbitHole(world);
-        moveTowardsRabbitHole(world);
-    } else {
-        moveRandomlyandEat(world);
-}
+            getRabbitHole(world);
+            moveTowardsRabbitHole(world);
+        } else {
+            moveRandomly(world);
+            if(!eatGrass(world) && new Random().nextInt(3) == 0){
+                energy --; //miste 1 energi hvsi begge betingelser er opfyldt 
+            }
+            
+            if(energy <= 0) {
+                die(world);
+                return;
+            }
+        }
 
     wasNight = world.isNight();
 
