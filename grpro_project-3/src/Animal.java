@@ -68,7 +68,6 @@ public abstract class Animal implements Actor {
         } 
 
         if(energy <= 0) {
-            System.out.println("Kanin døde af sult");
             world.delete(this);
         }
     } 

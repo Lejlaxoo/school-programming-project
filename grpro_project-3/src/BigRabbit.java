@@ -15,7 +15,7 @@ public class BigRabbit extends Animal {
     }
      
     @Override
-    public void act(itumulator.world.World world) {
+    public void act(World world) {
         if(!updateAge(world)) {
             return; // Afslutter metoden, hvis kaninen er død.
         }
