@@ -7,7 +7,7 @@ import java.util.Set;
 
 public class BigRabbit extends Animal {
 
-    private boolean hasReproduced = false; // Flag to track if the rabbit has reproduced in the current cycle
+    private boolean hasReproduced = false; 
 
     public BigRabbit(int age, int energy) {
         this.age = age;
@@ -15,7 +15,7 @@ public class BigRabbit extends Animal {
     }
      
     @Override
-    public void act(itumulator.world.World world) {
+    public void act(World world) {
         if(!updateAge(world)) {
             return; // Afslutter metoden, hvis kaninen er død.
         }
@@ -32,15 +32,23 @@ public class BigRabbit extends Animal {
         }
 
         if(world.isDay()) {
-            hasReproduced = false; // Reset reproduktion flag om dagen
+            hasReproduced = false; // Reset reproduktion  om dagen
         }
 
         if (world.isNight()) {
-        getRabbitHole(world);
-        moveTowardsRabbitHole(world);
-    } else {
-        moveRandomlyandEat(world);
-}
+            getRabbitHole(world);
+            moveTowardsRabbitHole(world);
+        } else {
+            moveRandomly(world);
+            if(!eatGrass(world) && new Random().nextInt(3) == 0){
+                energy --; //miste 1 energi hvsi begge betingelser er opfyldt 
+            }
+            
+            if(energy <= 0) {
+                die(world);
+                return;
+            }
+        }
 
     wasNight = world.isNight();
 
@@ -59,7 +67,7 @@ public class BigRabbit extends Animal {
 
             world.setTile(babyLocation, new SmallRabbit()); // Placerer baby kaninen på et tilfældigt tomt tile omkring forælderen
             
-            hasReproduced = true; // Sætter flaget til true, så kaninen ikke reproducerer igen i denne cyklus
+            hasReproduced = true; // Sætter feltet til true, så kaninen ikke reproducerer igen i denne tur
         }   
 
     }   

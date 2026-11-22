@@ -16,11 +16,12 @@ public class Main {
     int grassCount = 0;
     int burrowCount =0;
     int rabbitCount = 0;
+    int wolfCount = 0;
 
 
         Random random = new Random(); 
        
-         try (Scanner scanner = new Scanner(new File("Data/t1-3a.txt"))) {
+        try (Scanner scanner = new Scanner(new File("Data/t2-1c.txt"))) {
             size = scanner.nextInt();
 
             while (scanner.hasNext()) {
@@ -40,6 +41,8 @@ public class Main {
                     burrowCount = count;
                 } else if (type.equals("rabbit")) {
                     rabbitCount = count;
+                } else if (type.equals("wolf")) {
+                    wolfCount = count;
                 }
             }
 
@@ -49,7 +52,6 @@ public class Main {
         }
 
         Program p = new Program( size, 800, 75);
-        
         World w = p.getWorld();  
 
 
@@ -66,11 +68,11 @@ public class Main {
             
             w.setTile(randomLocation, new Grass()); // Placerer græs på et tilfældigt tile i verdenen
 
-}
-            p.setDisplayInformation( Grass.class, new DisplayInformation(new Color(1, 142, 66), "grass"));
-            p.setDisplayInformation(RabbitHole.class, new DisplayInformation(Color.magenta, "hole")); 
+        }
 
-          for (int i = 0; i < rabbitCount; i++) {
+        p.setDisplayInformation( Grass.class, new DisplayInformation(new Color(1, 142, 66), "grass"));
+
+        for (int i = 0; i < rabbitCount; i++) {
             int x = random.nextInt(size);
             int y = random.nextInt(size); 
             
@@ -83,28 +85,48 @@ public class Main {
                 }
                 SmallRabbit rabbit = new SmallRabbit();
                 w.setTile(randomLocation, rabbit); 
-              
+        }
 
-            }
+        p.setDisplayInformation(BigRabbit.class, new DisplayInformation(Color.WHITE, "rabbit-large")); 
+        p.setDisplayInformation(SmallRabbit.class, new DisplayInformation(Color.WHITE, "rabbit-small"));
 
-             for (int i = 0; i < burrowCount; i++) {
-              int x = random.nextInt(size);
-             int y = random.nextInt(size);
-             Location randomLocation = new Location(x, y);
+        for (int i = 0; i < burrowCount; i++) {
+            int x = random.nextInt(size);
+            int y = random.nextInt(size);
+            Location randomLocation = new Location(x, y);
 
-                while (!w.isTileEmpty(randomLocation) ||
-                    w.containsNonBlocking(randomLocation)) {
-                     x = random.nextInt(size);
-                      y = random.nextInt(size);
-    randomLocation = new Location(x, y);
-}
-             holeDigging(w, randomLocation);
+            while (!w.isTileEmpty(randomLocation) ||
+                w.containsNonBlocking(randomLocation)) {
+                    x = random.nextInt(size);
+                    y = random.nextInt(size);
+                    randomLocation = new Location(x, y);
+                }
+            holeDigging(w, randomLocation);
 
-}
-            p.setDisplayInformation(BigRabbit.class, new DisplayInformation(Color.WHITE, "rabbit-large")); 
-            p.setDisplayInformation(SmallRabbit.class, new DisplayInformation(Color.WHITE, "rabbit-small"));
+        }
+
+        p.setDisplayInformation(RabbitHole.class, new DisplayInformation(Color.magenta, "hole")); 
+
           
-         p.show(); 
+        for (int i = 0; i < wolfCount; i++) {
+            int x = random.nextInt(size);
+            int y = random.nextInt(size);
+            Location randomLocation = new Location(x, y);
+
+            while (!w.isTileEmpty(randomLocation) ||
+                    w.containsNonBlocking(randomLocation)) {
+                        x = random.nextInt(size);
+                        y = random.nextInt(size);
+                        randomLocation = new Location(x, y);
+                    }
+            
+            w.setTile(randomLocation, new Wolf());
+
+        }
+
+        p.setDisplayInformation(Wolf.class, new DisplayInformation(Color.BLACK, "wolf")); 
+
+        p.show(); 
     }
 
 
@@ -115,7 +137,7 @@ public class Main {
         return random.nextInt(max - min + 1) + min; // Fx 6-8: vælger 0, 1 eller 2 og lægger 6 til, så resultatet bliver 6, 7 eller 8
     }
 
-    private static void holeDigging(World world, Location place) {
+    private static void holeDigging(World world, Location place) { // kaninen hul der allerede ligger på kortet når stimulation begynder og kan kaniner bruger det her hul til fx sove
     RabbitHole hole = new RabbitHole();
     world.setTile(place, hole);
     Animal.addRabbitHole(hole);

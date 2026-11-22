@@ -1,2 +1,0 @@
-# school-programming-project
-dhhhhhhhhhhhhhhhhhhhhh
