@@ -1,6 +1,10 @@
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
@@ -49,5 +53,27 @@ public class WolfTest {
         assertEquals(energyBeforeHunting + 1, wolf.energy); //ulven fik +1 i energi
 
 
+    }
+
+    @Test
+    public void wolfMovesCloserToItsPack() {
+        World world = new World(5);
+        List<Wolf> pack = new ArrayList<>();
+        Wolf wolf = new Wolf(pack);
+        Wolf packMember = new Wolf(pack);
+        Location wolfStart = new Location(0, 0);
+        Location packMemberLocation = new Location(4, 4);
+
+        world.setTile(wolfStart, wolf);
+        world.setTile(packMemberLocation, packMember);
+
+        wolf.act(world);
+
+        Location newLocation = world.getLocation(wolf);
+        int newDistance = Math.max(
+            Math.abs(newLocation.getX() - packMemberLocation.getX()),
+            Math.abs(newLocation.getY() - packMemberLocation.getY())
+        );
+        assertTrue(newDistance < 4);
     }
 }

@@ -7,13 +7,13 @@ public abstract class Animal implements Actor {
     protected int age; 
     protected int energy; 
     protected boolean wasNight = false;
-    protected RabbitHole rabbitHole;
-    protected static ArrayList<RabbitHole> rabbitHoles = new ArrayList<>();
+    protected Hole hole;
+    protected static ArrayList<Hole> holes = new ArrayList<>();
     
     public Animal() {
         this.age = 0; 
         this.energy = 10; 
-        this.rabbitHole = null;
+        this.hole = null;
     }
 
     @Override 
@@ -103,7 +103,7 @@ public abstract class Animal implements Actor {
     }
 
     public void holeDigging(World world){
-        if(rabbitHole != null) {
+        if(hole != null) {
           return; // Kaninen har allerede et kaninhul, så den kan ikke grave et nyt.  
         } 
         
@@ -113,54 +113,54 @@ public abstract class Animal implements Actor {
         if (world.containsNonBlocking(location)) {
             Object thing = world.getNonBlocking(location); // "thing" er navnet på det non-blocking object, der ligger på samme felt, fx thing kan peger på græs hvis der ligger græs der
             
-             if (thing instanceof RabbitHole hole) { // her sprøge vi om obejkete er et kaninenhul, hvis det er et hul, så bruger kaninen det og hvis det er fx græs sletter koden det og graver et nyt hul
-                rabbitHole = hole;
-                addRabbitHole(rabbitHole);
+             if (thing instanceof Hole hole) { // her sprøge vi om obejkete er et kaninenhul, hvis det er et hul, så bruger kaninen det og hvis det er fx græs sletter koden det og graver et nyt hul
+                this.hole = hole;
+                addHole(hole);
                 return;
             }
               world.delete(thing);
         }
 
-        RabbitHole newRabbitHole = new RabbitHole(); // Opretter et nyt kaninhul hvis nu tile slet ikke havde en non-blocking objekt
-        world.setTile(location, newRabbitHole); // Placerer det nye kaninhul
+        Hole newHole = new Hole(); // Opretter et nyt kaninhul hvis nu tile slet ikke havde en non-blocking objekt
+        world.setTile(location, newHole); // Placerer det nye kaninhul
 
-        rabbitHole = newRabbitHole; // Gemmer referencen til kaninhullet i kaninen, så den ved, at den har et kaninhul.
-        addRabbitHole(newRabbitHole); 
+        hole = newHole; // Gemmer referencen til kaninhullet i kaninen, så den ved, at den har et kaninhul.
+        addHole(newHole); 
     }
 
-    public void findRabbitHole(ArrayList<RabbitHole> rabbitHoles, World world) { //World world, så metoden får adgeng til den verden kaninen befinder sig i. 
-        if(rabbitHole != null) {
+    public void findHole(ArrayList<Hole> Holes, World world) { //World world, så metoden får adgeng til den verden kaninen befinder sig i. 
+        if(hole != null) {
             return; // Kaninen har allerede et kaninhul, så den behøver ikke at finde et nyt.
         }
         Random random = new Random();
 
-        if(!rabbitHoles.isEmpty() && random.nextBoolean()) { // hvsi listen har mindts 1 hul, afgør random, hvad kaninen skal gør og her er 50 %: del et eksisterende hul fra listen
-            rabbitHole = rabbitHoles.get(random.nextInt(rabbitHoles.size()));
+        if(!Holes.isEmpty() && random.nextBoolean()) { // hvsi listen har mindts 1 hul, afgør random, hvad kaninen skal gør og her er 50 %: del et eksisterende hul fra listen
+             hole = Holes.get(random.nextInt(Holes.size()));
         } else {
             holeDigging(world); // Hvis der ikke er nogen kaninhuller, graver kaninen et nyt. hvis kaninen skal grave, sender findRabbitHole verdenen videre til holdSigging.
      } 
     } 
 
-    public static void addRabbitHole(RabbitHole rabbitHole) { // tilføjer kun hullet hvis listen ikke allerede indeholder det
-    if (!rabbitHoles.contains(rabbitHole)) {
-        rabbitHoles.add(rabbitHole);
+    public static void addHole(Hole hole) { // tilføjer kun hullet hvis listen ikke allerede indeholder det
+    if (!holes.contains(hole)) {
+        holes.add(hole);
     }
     }
 
-    public void getRabbitHole(World world) { // sikre at kaninen får tildelt et hul.
-        if (rabbitHole != null) {
+    public void getHole(World world) { // sikre at kaninen får tildelt et hul.
+        if (hole != null) {
             return;
         }
-        findRabbitHole(rabbitHoles, world);
+        findHole(holes, world);
     }
  
-    public void moveTowardsRabbitHole(World world) {
-        if (rabbitHole == null) {
+    public void moveTowardHole(World world) {
+        if (hole == null) {
             return;
     }
     
         Location rabbitLocation = world.getLocation(this); // vi henter kaninens koordinater
-        Location holeLocation = world.getLocation(rabbitHole); // vi henter hullets koordinator
+        Location holeLocation = world.getLocation(hole); // vi henter hullets koordinator
 
         Set<Location> locations =
             world.getEmptySurroundingTiles(rabbitLocation); // henter alle de tommer nabofleter omkring kaninen 
@@ -177,11 +177,11 @@ public abstract class Animal implements Actor {
     }
 
     public void sleepIfInHole(World world) { // får kaninne til at gå ind i hullet
-        if (rabbitHole == null || !world.isOnTile(this)) {
+        if (hole == null || !world.isOnTile(this)) {
         return;
         }
         Location rabbitLocation = world.getLocation(this);
-        Location holeLocation = world.getLocation(rabbitHole);
+        Location holeLocation = world.getLocation(hole);
 
         if (rabbitLocation.getX() == holeLocation.getX() && rabbitLocation.getY() == holeLocation.getY()) { // kaninen ska stå præcis på hullets felt
         world.remove(this); // remove = væk fra kortet, men stadig i liv (delete = død) // den gå ned i hullet og fjernes midertiigt
@@ -189,11 +189,11 @@ public abstract class Animal implements Actor {
     }
 
     public void wakeUp(World world) { // placerer kaninen påkortet igen
-        if (world.isOnTile(this) || rabbitHole == null) { 
+        if (world.isOnTile(this) || hole == null) { 
         return; // kaninen er allerede vågen og stå på kortet ellers henter hullet placering(se næste linje)
         }
         
-        Location holeLocation = world.getLocation(rabbitHole);
+        Location holeLocation = world.getLocation(hole);
 
         if (world.isTileEmpty(holeLocation)) {
             world.setTile(holeLocation, this); // placerer kaninen dirketet oven på hullet hvis der er plads
@@ -207,4 +207,6 @@ public abstract class Animal implements Actor {
         }
     }
 }
+
+
 

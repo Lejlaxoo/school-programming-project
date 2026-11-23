@@ -24,7 +24,7 @@ public class SmallRabbit extends Animal {
             BigRabbit bigRabbit = new BigRabbit(age, energy);
 
             bigRabbit.wasNight = world.isNight(); // Overfører wasNight status til den nye BigRabbit og beholder stye på dag/nat ved overgnagen
-            bigRabbit.rabbitHole = this.rabbitHole; // Overfører rabbitHole referencen til den nye BigRabbit, så den ikke laver flere huller på samme Tile.
+            bigRabbit.hole = this.hole; // Overfører rabbitHole referencen til den nye BigRabbit, så den ikke laver flere huller på samme Tile.
 
             world.delete(this); // fjerne den lille kanin fra verdenen, da den nu bliver opgraderet til en stor kanin.
 
@@ -33,8 +33,8 @@ public class SmallRabbit extends Animal {
         }
         
        if (world.isNight()) {
-            getRabbitHole(world);
-            moveTowardsRabbitHole(world);
+            getHole(world);
+            moveTowardHole(world);
             sleepIfInHole(world);
         } else {
             moveRandomly(world);

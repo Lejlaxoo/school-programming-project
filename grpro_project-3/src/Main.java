@@ -5,6 +5,8 @@ import itumulator.world.World;
 import java.awt.Color;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 import java.util.Scanner;
 
@@ -14,11 +16,12 @@ public class Main {
         int grassCount = 0;
         int burrowCount =0;
         int rabbitCount = 0;
-        int wolfCount = 0;
+        List<Integer> wolfPackSizes = new ArrayList<>();
 
         Random random = new Random(); 
         try (Scanner scanner = new Scanner(new File("Data/t2-1c.txt"))) {
             size = scanner.nextInt();
+            scanner.nextLine();
 
             while (scanner.hasNext()) {
                 String type = scanner.next();   // fx "grass", "burrow" eller "rabbit"
@@ -38,7 +41,7 @@ public class Main {
                 } else if (type.equals("rabbit")) {
                     rabbitCount = count;
                 } else if (type.equals("wolf")) {
-                    wolfCount = count;
+                    wolfPackSizes.add(count);
                 }
             }
 
@@ -66,7 +69,7 @@ public class Main {
 
         }
         p.setDisplayInformation( Grass.class, new DisplayInformation(new Color(1, 142, 66), "grass"));
-        p.setDisplayInformation(RabbitHole.class, new DisplayInformation(Color.magenta, "hole")); 
+        p.setDisplayInformation(Hole.class, new DisplayInformation(Color.magenta, "hole")); 
 
         for (int i = 0; i < rabbitCount; i++) {
             int x = random.nextInt(size);
@@ -100,19 +103,21 @@ public class Main {
         p.setDisplayInformation(BigRabbit.class, new DisplayInformation(Color.WHITE, "rabbit-large")); 
         p.setDisplayInformation(SmallRabbit.class, new DisplayInformation(Color.WHITE, "rabbit-small"));
 
-        for (int i = 0; i < wolfCount; i++) {
-            int x = random.nextInt(size);
-            int y = random.nextInt(size); 
-            Location randomLocation = new Location(x, y);
+        for (int packSize : wolfPackSizes) {
+            List<Wolf> pack = new ArrayList<>();
+            for (int i = 0; i < packSize; i++) {
+                int x = random.nextInt(size);
+                int y = random.nextInt(size);
+                Location randomLocation = new Location(x, y);
 
-            while (w.containsNonBlocking(randomLocation)) {
-                x = random.nextInt(size);
-                y = random.nextInt(size);
-                randomLocation = new Location(x, y);
+                while (!w.isTileEmpty(randomLocation) || w.containsNonBlocking(randomLocation)) {
+                    x = random.nextInt(size);
+                    y = random.nextInt(size);
+                    randomLocation = new Location(x, y);
+                }
+
+                w.setTile(randomLocation, new Wolf(pack)); // Placerer ulve fra samme inputlinje i én flok
             }
-
-            w.setTile(randomLocation, new Wolf()); // Placerer ulve på et tilfældigt tile i verdenen
-
         }
         p.setDisplayInformation( Wolf.class, new DisplayInformation(Color.BLACK, "wolf"));
         
@@ -128,8 +133,8 @@ public class Main {
     }
 
     private static void holeDigging(World world, Location place) { // kaninen hul der allerede ligger på kortet når stimulation begynder og kan kaniner bruger det her hul til fx sove
-        RabbitHole hole = new RabbitHole();
+       Hole hole = new Hole();
         world.setTile(place, hole);
-        Animal.addRabbitHole(hole);
+        Animal.addHole(hole);
     }
 }
