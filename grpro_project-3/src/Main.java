@@ -95,6 +95,7 @@ public class Main {
             int y = random.nextInt(size);
             Location randomLocation = new Location(x, y);
 
+<<<<<<< Updated upstream
             while (!w.isTileEmpty(randomLocation) ||
                 w.containsNonBlocking(randomLocation)) {
                     x = random.nextInt(size);
@@ -106,6 +107,14 @@ public class Main {
         }
 
         p.setDisplayInformation(RabbitHole.class, new DisplayInformation(Color.magenta, "hole")); 
+=======
+                while (!w.isTileEmpty(randomLocation) || w.containsNonBlocking(randomLocation)) {
+                     x = random.nextInt(size);
+                      y = random.nextInt(size);
+                    randomLocation = new Location(x, y);
+}
+             holeDigging(w, randomLocation);
+>>>>>>> Stashed changes
 
           
         for (int i = 0; i < wolfCount; i++) {
@@ -128,7 +137,6 @@ public class Main {
 
         p.show(); 
     }
-
 
     private static int getRandomCount(String range, Random random) {
         String[] parts = range.split("-"); // deleter fx 6-8 i 6 og 8, så vi kan bruge dem som min og max
