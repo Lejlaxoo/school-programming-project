@@ -1,37 +1,300 @@
-
+import itumulator.world.Location;
+import itumulator.world.World;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
-
-import itumulator.world.Location;
-import itumulator.world.World;
 
 public class Wolf extends Animal {
     private int turnsWithoutHunting = 0;
     private int mealsEaten = 0;
     private boolean isBaby;
-    private final WolfPack pack; // Ulven tilhører en bestemt flok.
+    private final WolfPack pack;
     private final Random random = new Random();
 
-   public Wolf() {
-    this(new WolfPack(), false);
-}
+    public Wolf() {
+        this(new WolfPack(), false);
+    }
 
+    public Wolf(WolfPack pack) {
+        this(pack, false);
+    }
 
-public Wolf(WolfPack pack) { // Opretter en ulv i en eksisterende flok.
-    this(pack, false);
-}
+    public Wolf(WolfPack pack, boolean isBaby) {
+        this.pack = pack;
+        this.isBaby = isBaby;
+        pack.addWolf(this);
+    }
 
+    @Override
+    public void act(World world) {
+        if (!world.contains(this)) {
+            return;
+        }
 
-public Wolf(WolfPack pack, boolean isBaby) { // Opretter en ulv og bestemmer, om den er en baby.
-    this.pack = pack;
-    this.isBaby = isBaby;
-    this.pack.addWolf(this);
-}
+        if (world.isDay()) {
+            wakeUp(world);
+        }
 
-   
-    private int countLivingWolves(World world) {  // Tæller hvor mange levende ulve der er i flokken.
+        if (!world.isOnTile(this)) {
+            return; // Ulven er stadig nede i hulen.
+        }
 
+        if (fightOverRabbit(world)) {
+            return; // Vinderen har allerede spist kaninen.
+        }
+
+        fight(world);
+
+        if (!world.contains(this)) {
+            return; // Ulven tabte kampen.
+        }
+
+        buildHole(world);
+
+        if (enterDenAtNight(world)) {
+            return; // Ulven var allerede tæt nok på hulen.
+        }
+
+        if (hunt(world)) {
+            mealCount();
+            return;
+        }
+
+        if (world.isDay()) {
+            turnsWithoutHunting++;
+
+            if (turnsWithoutHunting >= 10) {
+                die(world);
+                return;
+            }
+        }
+
+        Hole den = pack.getDen();
+
+        if (den == null) {
+            moveTowardsPack(world);
+        } else if (world.isNight()) {
+            moveCloserTo(world, world.getLocation(den));
+            reproduceAtDen(world);
+            enterDenAtNight(world);
+        } else {
+            reproduceAtDen(world);
+            moveRandomly(world); // Led efter mad væk fra hulen.
+        }
+    }
+
+    private void buildHole(World world) {
+        if (pack.getDen() != null) {
+            return; // Flokken har allerede en hule.
+        }
+
+        Location location = world.getLocation(this);
+        int nearbyWolves = 1; // Tæl ulven selv med.
+
+        for (Location neighbor : world.getSurroundingTiles(location)) {
+            Object animal = world.getTile(neighbor);
+
+            if (animal instanceof Wolf wolf && wolf != this && wolf.pack == pack) {
+                nearbyWolves++;
+            }
+        }
+
+        if (nearbyWolves < 3) {
+            return; // Mindst to andre flokmedlemmer skal være ved siden af ulven.
+        }
+
+        List<Location> availableLocations = new ArrayList<>();
+
+        for (Location neighbor : world.getEmptySurroundingTiles(location)) {
+            if (!world.containsNonBlocking(neighbor)) {
+                availableLocations.add(neighbor); // Der er plads til selve hulen.
+            }
+        }
+
+        if (availableLocations.isEmpty()) {
+            return;
+        }
+
+        Location denLocation =
+                availableLocations.get(random.nextInt(availableLocations.size()));
+
+        Hole den = new Hole();
+        world.setTile(denLocation, den);
+        pack.setDen(den);
+    }
+
+    private boolean enterDenAtNight(World world) {
+        Hole den = pack.getDen();
+
+        if (!world.isNight() || den == null) {
+            return false;
+        }
+
+        Location wolfLocation = world.getLocation(this);
+        Location denLocation = world.getLocation(den);
+
+        if (distance(wolfLocation, denLocation) > 1) {
+            return false; // Ulven er for langt væk til at gå ned.
+        }
+
+        this.hole = den;     // Den arvede wakeUp() bruger dette felt.
+        world.remove(this); // Ulven går ned i hulen og lever stadig.
+        return true;
+    }
+
+    private void reproduceAtDen(World world) {
+        if (isBaby) {
+            return; // Kun voksne ulve kan få unger.
+        }
+
+        Location denLocation = world.getLocation(pack.getDen());
+        Location wolfLocation = world.getLocation(this);
+
+        if (distance(wolfLocation, denLocation) > 1) {
+            return;
+        }
+
+        if (random.nextInt(100) >= 25) {
+            return; // 25 % chance for en unge.
+        }
+
+        List<Location> emptyLocations =
+                new ArrayList<>(world.getEmptySurroundingTiles(denLocation));
+
+        if (!emptyLocations.isEmpty()) {
+            Location babyLocation =
+                    emptyLocations.get(random.nextInt(emptyLocations.size()));
+            world.setTile(babyLocation, new Wolf(pack, true));
+        }
+    }
+
+    private void moveTowardsPack(World world) {
+        Location location = world.getLocation(this);
+        Location nearestLocation = null;
+        int nearestDistance = Integer.MAX_VALUE;
+
+        for (Wolf member : pack.getWolves()) {
+            if (member == this || !world.contains(member) || !world.isOnTile(member)) {
+                continue; // Spring ulven selv og medlemmer uden placering over.
+            }
+
+            Location memberLocation = world.getLocation(member);
+            int memberDistance = distance(location, memberLocation);
+
+            if (memberDistance < nearestDistance) {
+                nearestDistance = memberDistance;
+                nearestLocation = memberLocation;
+            }
+        }
+
+        if (nearestLocation == null) {
+            moveRandomly(world);
+        } else {
+            moveCloserTo(world, nearestLocation);
+        }
+    }
+
+    private void moveCloserTo(World world, Location target) {
+        Location location = world.getLocation(this);
+        int currentDistance = distance(location, target);
+        int bestDistance = currentDistance;
+        List<Location> bestLocations = new ArrayList<>();
+
+        for (Location neighbor : world.getEmptySurroundingTiles(location)) {
+            int newDistance = distance(neighbor, target);
+
+            if (newDistance < bestDistance) {
+                bestDistance = newDistance;
+                bestLocations.clear();
+                bestLocations.add(neighbor);
+            } else if (newDistance == bestDistance && newDistance < currentDistance) {
+                bestLocations.add(neighbor);
+            }
+        }
+
+        if (!bestLocations.isEmpty()) {
+            Location nextLocation =
+                    bestLocations.get(random.nextInt(bestLocations.size()));
+            world.move(this, nextLocation);
+        }
+    }
+
+    private int distance(Location first, Location second) {
+        int xDistance = Math.abs(first.getX() - second.getX());
+        int yDistance = Math.abs(first.getY() - second.getY());
+        return Math.max(xDistance, yDistance); // Et diagonalt nabofelt er ét skridt væk.
+    }
+
+    private void fight(World world) {
+        Location location = world.getLocation(this);
+
+        for (Location neighbor : world.getSurroundingTiles(location)) {
+            Object animal = world.getTile(neighbor);
+
+            if (animal instanceof Wolf rival && rival.pack != pack) {
+                Wolf winner = chooseWinner(world, rival);
+
+                if (winner == this) {
+                    rival.die(world);
+                } else {
+                    die(world);
+                }
+
+                return;
+            }
+        }
+    }
+
+    private boolean fightOverRabbit(World world) {
+        Location location = world.getLocation(this);
+
+        for (Location rabbitLocation : world.getSurroundingTiles(location)) {
+            Object rabbit = world.getTile(rabbitLocation);
+
+            if (!(rabbit instanceof SmallRabbit || rabbit instanceof BigRabbit)) {
+                continue;
+            }
+
+            for (Location neighbor : world.getSurroundingTiles(rabbitLocation)) {
+                Object animal = world.getTile(neighbor);
+
+                if (animal instanceof Wolf rival && rival.pack != pack) {
+                    Wolf winner = chooseWinner(world, rival);
+
+                    if (winner == this) {
+                        rival.die(world);
+                    } else {
+                        die(world);
+                    }
+
+                    world.delete(rabbit);
+                    world.move(winner, rabbitLocation);
+                    winner.energy++;
+                    winner.mealCount();
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    private Wolf chooseWinner(World world, Wolf rival) {
+        int myPackSize = countLivingWolves(world);
+        int rivalPackSize = rival.countLivingWolves(world);
+
+        if (myPackSize > rivalPackSize) {
+            return this;
+        }
+
+        if (rivalPackSize > myPackSize) {
+            return rival;
+        }
+
+        return random.nextBoolean() ? this : rival;
+    }
+
+    private int countLivingWolves(World world) {
         int count = 0;
 
         for (Wolf wolf : pack.getWolves()) {
@@ -43,287 +306,15 @@ public Wolf(WolfPack pack, boolean isBaby) { // Opretter en ulv og bestemmer, om
         return count;
     }
 
-    @Override
-    public void act(World world) {
+    private void mealCount() {
+        turnsWithoutHunting = 0;
 
-        // Først undersøger ulven, om den skal kæmpe.
-        fight(world);
+        if (isBaby) {
+            mealsEaten++;
 
-        if (!world.contains(this)) {
-            return;
-        }
-
-        // Flokken bygger en hule, når den er stor nok.
-        buildHole(world);
-
-       if (hunt(world)) {
-         turnsWithoutHunting = 0;
-             if (isBaby) { // Babyulven tæller, hvor mange gange den har spist.
-                  mealsEaten++;
-
-              if (mealsEaten >= 2) { // Babyulven bliver voksen efter 2 måltider.
-                   isBaby = false;
-        }
-    }
-
-    return;
-}
-
-        turnsWithoutHunting++;
-
-        // Ulven dør efter 10 ture uden jagt.
-        if (turnsWithoutHunting >= 10) {
-            die(world);
-            return;
-        }
-
-        // Hvis flokken har en hule, søger ulven mod den.
-        if (pack.getDen() != null) {
-            moveTowardsDen(world);
-            reproduceAtDen(world);
-        } else {
-            // Ellers søger ulven mod de andre medlemmer af flokken.
-            moveTowardsPack(world);
-        }
-    }
-
-    // Bygger én fælles hule, når flokken har mindst 3 levende ulve.
-    private void buildHole(World world) {
-        int packSize = countLivingWolves(world);
-        if (packSize >= 3 && pack.getDen() == null) {
-
-            Location location = world.getLocation(this);
-
-            // Finder ledige felter omkring ulven.
-            List<Location> emptyLocations = new ArrayList<>(world.getEmptySurroundingTiles(location));
-                            
-                   
-
-            if (!emptyLocations.isEmpty()) {
-
-                // Vælger et tilfældigt ledigt felt.
-                Location holeLocation = emptyLocations.get(random.nextInt(emptyLocations.size()));
-                Hole hole = new Hole(); 
-                world.setTile(holeLocation, hole);
-                Animal.addHole(hole);
-                pack.setDen(hole); // Gemmer hulen som flokkens fælles hule.
+            if (mealsEaten >= 2) {
+                isBaby = false; // En unge bliver voksen efter to måltider.
             }
         }
-    }
-
-    // Får ulven til at bevæge sig mod flokkens fælles hule.
-    private void moveTowardsDen(World world) {
-
-        Hole den = pack.getDen();
-
-        if (den == null) {
-            return;
-        }
-
-        Location wolfLocation = world.getLocation(this);
-        Location denLocation = world.getLocation(den);
-
-        int currentDistance = distance(wolfLocation, denLocation);
-
-        List<Location> bestLocations = new ArrayList<>();
-        int bestDistance = currentDistance;
-
-        // Undersøger alle ledige nabofelter.
-        for (Location possibleLocation : world.getEmptySurroundingTiles(wolfLocation)) {
-            int newDistance = distance(possibleLocation, denLocation);
-
-            if (newDistance < bestDistance) {
-                bestDistance = newDistance;
-                bestLocations.clear();
-                bestLocations.add(possibleLocation);
-
-            } else if (newDistance == bestDistance  && newDistance < currentDistance) {
-                bestLocations.add(possibleLocation);
-            }
-        }
-
-        // Flytter ulven til et felt, der er tættere på hulen.
-        if (!bestLocations.isEmpty()) {
-
-            Location nextLocation = bestLocations.get(
-                    random.nextInt(bestLocations.size())
-            );
-
-            world.move(this, nextLocation);
-        }
-    }
-
-    // Ulvene formerer sig ved deres fælles hule.
-    private void reproduceAtDen(World world) {
-
-        Hole den = pack.getDen();
-        if (den == null) {
-            return;
-        }
-
-        Location wolfLocation = world.getLocation(this);
-        Location denLocation = world.getLocation(den);
-
-        
-        if (distance(wolfLocation, denLocation) > 1 ) { // Ulven skal være ved hulen eller på et nabofelt.
-            return;
-        }
-
-        if (random.nextInt(100) >= 25) {  // Der er 25 % chance for formering. Hvis tallet er 25 eller højere, stopper metoden, og ulven formerer sig ikke.
-            return;
-        }
-
-    
-        List<Location> emptyLocations =  new ArrayList<>( world.getEmptySurroundingTiles(denLocation)); // Finder ledige felter omkring hulen.
-
-        if (emptyLocations.isEmpty()) {
-            return;
-        }
-
-        // Vælger et tilfældigt felt til ungen.
-        Location babyLocation = emptyLocations.get(random.nextInt(emptyLocations.size()));
-
-       Wolf baby = new Wolf(pack, true);// Opretter en unge i den samme flok som forældrene. 
-
-        // Placerer ungen i verden.
-        world.setTile(babyLocation, baby);
-    }
-
-    // Undersøger, om ulven har andre levende medlemmer i sin flok.
-    private boolean hasLivingPackMembers(World world) {
-
-        for (Wolf wolf : pack.getWolves()) {
-
-            if (wolf != this
-                    && world.contains(wolf)
-                    && world.isOnTile(wolf)) {
-
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    // Håndterer kamp mellem ulve fra forskellige flokke.
-    private void fight(World world) {
-
-        Location location = world.getLocation(this);
-
-        for (Location surroundingTile :
-                world.getSurroundingTiles(location)) {
-
-            Object animal = world.getTile(surroundingTile);
-
-            if (animal instanceof Wolf otherWolf) {
-
-                // Ulve fra samme flok kæmper ikke.
-                if (this.pack != otherWolf.pack) {
-
-                    if (!hasLivingPackMembers(world)) {
-                        die(world);
-                        return;
-                    }
-
-                    else if (!otherWolf.hasLivingPackMembers(world)) {
-                        otherWolf.die(world);
-                        return;
-                    }
-
-                    else {
-
-                        int myPackSize = countLivingWolves(world);
-                        int otherPackSize =
-                                otherWolf.countLivingWolves(world);
-
-                        // Den største flok vinder.
-                        if (myPackSize > otherPackSize) {
-                            otherWolf.die(world);
-                            return;
-                        }
-
-                        else if (myPackSize < otherPackSize) {
-                            die(world);
-                            return;
-                        }
-
-                        // Ved lige store flokke afgøres kampen tilfældigt.
-                        else {
-                            if (random.nextBoolean()) {
-                                otherWolf.die(world);
-                                return;
-                            } else {
-                                die(world);
-                                return;
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    private void moveTowardsPack(World world) { // Får ulven til at bevæge sig tættere på sin egen flok.
-        Location location = world.getLocation(this);
-        Wolf nearestWolf = null;
-        int nearestDistance = 0;
-        
-        for (Wolf packMember : pack.getWolves()) { // Finder den nærmeste levende ulv i samme flok.
-            if (packMember != this) {
-                if (world.contains(packMember) && world.isOnTile(packMember)) {
-                    Location memberLocation = world.getLocation(packMember);
-
-                    int memberDistance = distance(location, memberLocation);
-                    if (nearestWolf == null || memberDistance < nearestDistance) {
-                        nearestWolf = packMember;
-                        nearestDistance = memberDistance;
-                    }
-                }
-            }
-        }
-
-        if (nearestWolf == null) {
-            moveRandomly(world);
-            return;
-        }
-
-        Location target = world.getLocation(nearestWolf);
-
-        List<Location> bestLocations = new ArrayList<>();
-        int bestDistance = nearestDistance;
-
-        for (Location possibleLocation : world.getEmptySurroundingTiles(location)) {
-            int newDistance = distance(possibleLocation, target);
-
-            if (newDistance < bestDistance) {
-                bestDistance = newDistance;
-                bestLocations.clear();
-                bestLocations.add(possibleLocation);
-
-            } else if (newDistance == bestDistance && newDistance < nearestDistance) {
-                bestLocations.add(possibleLocation);
-            }
-        }
-
-        if (!bestLocations.isEmpty()) {
-
-            Location nextLocation = bestLocations.get(random.nextInt(bestLocations.size()));
-
-            world.move(this, nextLocation);
-        }
-    }
-    private int distance(Location first, Location second) { // Beregner afstanden mellem to felter.
-        int xDistance = first.getX() - second.getX();
-        int yDistance = first.getY() - second.getY();
-
-        if (xDistance < 0) {
-        xDistance = xDistance * -1;
-        }
-
-        if (yDistance < 0) {
-            yDistance = yDistance * -1;
-        }
-
-        return Math.max(xDistance, yDistance);
     }
 }

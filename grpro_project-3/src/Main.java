@@ -17,9 +17,10 @@ public class Main {
         int burrowCount =0;
         int rabbitCount = 0;
         List<Integer> wolfPackSizes = new ArrayList<>();
+        int bearCount = 0;
 
         Random random = new Random(); 
-        try (Scanner scanner = new Scanner(new File("Data/t2-3a.txt"))) {
+        try (Scanner scanner = new Scanner(new File("Data/t2-4b.txt"))) {
             size = scanner.nextInt();
             scanner.nextLine();
 
@@ -42,6 +43,8 @@ public class Main {
                     rabbitCount = count;
                 } else if (type.equals("wolf")) {
                     wolfPackSizes.add(count);
+                } else if (type.equals("bear")) {
+                    bearCount = count; 
                 }
             }
 
@@ -68,8 +71,7 @@ public class Main {
             w.setTile(randomLocation, new Grass()); // Placerer græs på et tilfældigt tile i verdenen
 
         }
-        p.setDisplayInformation( Grass.class, new DisplayInformation(new Color(1, 142, 66), "grass"));
-        p.setDisplayInformation(Hole.class, new DisplayInformation(Color.magenta, "hole")); 
+        p.setDisplayInformation( Grass.class, new DisplayInformation(new Color(1, 142, 66), "grass")); 
 
         for (int i = 0; i < rabbitCount; i++) {
             int x = random.nextInt(size);
@@ -86,6 +88,9 @@ public class Main {
             w.setTile(randomLocation, rabbit); 
 
         }
+        p.setDisplayInformation(BigRabbit.class, new DisplayInformation(Color.WHITE, "rabbit-large")); 
+        p.setDisplayInformation(SmallRabbit.class, new DisplayInformation(Color.WHITE, "rabbit-small"));
+
         for (int i = 0; i < burrowCount; i++) {
             int x = random.nextInt(size);
             int y = random.nextInt(size);
@@ -100,8 +105,8 @@ public class Main {
             holeDigging(w, randomLocation);
 
         }
-        p.setDisplayInformation(BigRabbit.class, new DisplayInformation(Color.WHITE, "rabbit-large")); 
-        p.setDisplayInformation(SmallRabbit.class, new DisplayInformation(Color.WHITE, "rabbit-small"));
+        p.setDisplayInformation(Hole.class, new DisplayInformation(Color.magenta, "hole-small"));
+        
 
         for (int packSize : wolfPackSizes) {
         WolfPack pack = new WolfPack(); // Opretter én ny flok for denne inputlinje.
@@ -125,7 +130,24 @@ public class Main {
     }
 }
         p.setDisplayInformation( Wolf.class, new DisplayInformation(Color.BLACK, "wolf"));
+        p.setDisplayInformation( Hole.class, new DisplayInformation(Color.BLACK, "hole"));
         
+        for (int i = 0; i < bearCount; i++) {
+            int x = random.nextInt(size);
+            int y = random.nextInt(size); 
+            Location randomLocation = new Location(x, y);
+
+            while (w.containsNonBlocking(randomLocation)) {
+                x = random.nextInt(size);
+                y = random.nextInt(size);
+                randomLocation = new Location(x, y);
+            }
+
+            w.setTile(randomLocation, new Bear()); // Placerer græs på et tilfældigt tile i verdenen
+
+        }
+        p.setDisplayInformation(Bear.class, new DisplayInformation(Color.WHITE, "bear"));
+
         p.show();
         
     }

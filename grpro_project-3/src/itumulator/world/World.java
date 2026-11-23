@@ -255,13 +255,13 @@ public class World {
      * @param object   The object to place at the specified location.
      * @throws IllegalArgumentException if the tile is occupied by the same type of object, or if the object already exists on the map, or if the location is out of bounds.
      */
-    public void setTile(Hole hole, Object object) {
+    public void setTile(Location location, Object object) {
         if (entities.get(object) != null) {
             throw new IllegalArgumentException("Entity already exists in the world.");
         }
-        validateCoordinates(hole);
+        validateCoordinates(location);
 
-        Object[] tile = this.tiles[hole.getX()][hole.getY()];
+        Object[] tile = this.tiles[location.getX()][location.getY()];
 
         if (object instanceof NonBlocking) {
             if (tile[0] != null)
@@ -274,7 +274,7 @@ public class World {
             tile[1] = object;
         }
 
-        entities.put(object, hole);
+        entities.put(object, location);
     }
 
     /**

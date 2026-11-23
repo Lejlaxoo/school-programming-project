@@ -35,24 +35,27 @@ public class BigRabbit extends Animal {
             hasReproduced = false; // Reset reproduktion  om dagen
         }
 
-        if (world.isNight()) {
+         if (world.isNight()) {
             getHole(world);
             moveTowardHole(world);
+            sleepIfInHole(world);
         } else {
             moveRandomly(world);
-            if(!eatGrass(world) && new Random().nextInt(3) == 0){
-                energy --; //miste 1 energi hvsi begge betingelser er opfyldt 
+
+            if (eatGrass(world)) {
+                dayTurnsWithoutFood = 0; // Græs nulstiller tælleren
+            } else {
+                dayTurnsWithoutFood++; // Én dagtur uden mad
             }
-            
-            if(energy <= 0) {
+
+            if (energy <= 0 || dayTurnsWithoutFood >= 3) {
                 die(world);
                 return;
             }
         }
-
-    wasNight = world.isNight();
-
-    }
+        
+        wasNight = world.isNight(); 
+    }   
 
     public void reproduce(World world) {
         Location location = world.getLocation(this);

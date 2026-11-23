@@ -1,10 +1,14 @@
+
+import static org.junit.jupiter.api.Assertions.*;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -54,9 +58,28 @@ public class RabbitTest {
         assertEquals(6, rabbit.energy);
     }
 
+    @Test
+    public void rabbitDiesAfterThreeDayTurnsWithoutFood() {
+        World world = new World(1); // Ét felt uden græs, så kaninen bliver samme sted
+        BigRabbit rabbit = new BigRabbit(3, 10);
+        Location location = new Location(0, 0);
+
+        world.setDay();
+        world.setTile(location, rabbit);
+
+        rabbit.act(world);
+        assertSame(rabbit, world.getTile(location)); // Lever efter første dagtur
+
+        rabbit.act(world);
+        assertSame(rabbit, world.getTile(location)); // Lever efter anden dagtur
+
+        rabbit.act(world);
+        assertNull(world.getTile(location)); // Fjernes på tredje dagtur
+    }
+
     @Test 
     public void RabbitRemoved0Energy(){
-        World world = new World(1); // her er kortet størrelse 1,så kaninen har ingen felter at flytte sig til, og vi sikre at den er fjernet
+        World world = new World(1);
         BigRabbit rabbit = new BigRabbit(3, 0);
         Location location = new Location(0, 0);
 
@@ -66,6 +89,57 @@ public class RabbitTest {
         rabbit.act(world);
 
         assertNull(world.getTile(location));
+
+    }
+
+    @Test
+    public void rabbitEnergyDropsToFiveAtSixYears() {
+        World world = new World(1);
+        Location location = new Location(0, 0);
+        BigRabbit rabbit = new BigRabbit(5, 10);
+        rabbit.wasNight = true;
+
+        world.setTile(location, rabbit);
+        world.setDay();
+
+        rabbit.act(world);
+
+        assertEquals(6, rabbit.age);
+        assertEquals(5, rabbit.energy);
+    }
+
+    @Test
+    public void rabbitEnergyDropsToTwoAtElevenYears() {
+        World world = new World(1);
+        Location location = new Location(0, 0);
+        BigRabbit rabbit = new BigRabbit(10, 5);
+        rabbit.wasNight = true;
+
+        world.setTile(location, rabbit);
+        world.setDay();
+
+        rabbit.act(world);
+
+        assertEquals(11, rabbit.age);
+        assertEquals(2, rabbit.energy);
+    }
+
+    @Test
+    public void smallRabbitBecomesAdultAtThree() {
+        World world = new World(1);
+        Location location = new Location(0, 0);
+        SmallRabbit rabbit = new SmallRabbit();
+        rabbit.age = 2;
+        rabbit.wasNight = true;
+
+        world.setTile(location, rabbit);
+        world.setDay();
+
+        rabbit.act(world);
+
+        Object animal = world.getTile(location);
+        assertTrue(animal instanceof BigRabbit);
+        assertEquals(3, ((BigRabbit) animal).age);
     }
 
     @Test 
@@ -81,7 +155,37 @@ public class RabbitTest {
             world.getTile(new Location(1, 0)) instanceof SmallRabbit
             || world.getTile(new Location(1,1)) instanceof SmallRabbit
         ); //tjekker om der står en småkanin på en af storkanins nabofelter
+    }
 
+    @Test
+    public void rabbitDoesNotReproduceWhenAllSurroundingTilesAreOccupied() {
+        World world = new World(2);
+        BigRabbit rabbit = new BigRabbit(3, 10);
+        Hole hole = new Hole();
+
+        Location start = new Location(0, 0);
+        Location first = new Location(0, 1);
+        Location second = new Location(1, 0);
+        Location third = new Location(1, 1);
+
+        SmallRabbit firstRabbit = new SmallRabbit();
+        SmallRabbit secondRabbit = new SmallRabbit();
+        SmallRabbit thirdRabbit = new SmallRabbit();
+
+        world.setTile(start, hole);
+        world.setTile(start, rabbit);
+        rabbit.hole = hole; // Den voksne kanin har allerede et hul
+
+        world.setTile(first, firstRabbit);
+        world.setTile(second, secondRabbit);
+        world.setTile(third, thirdRabbit);
+        world.setNight();
+
+        rabbit.act(world);
+
+        assertSame(firstRabbit, world.getTile(first));
+        assertSame(secondRabbit, world.getTile(second));
+        assertSame(thirdRabbit, world.getTile(third));
     }
 
     @Test 
@@ -108,12 +212,12 @@ public class RabbitTest {
         world.setTile(holeLocation, first); // sæt den første kanin på feltet
         first.holeDigging(world); // den første kanine graver et hule 
         world.move(first, new Location(1, 0)); // flyt kanine, så hullet er nu ledigt 
-        
-       world.setTile(holeLocation, second); 
-       second.holeDigging(world); // den anden kanine, bruger hullet, der allerede er der
 
-       assertNotNull(first.hole); // tjekker, atder faktisk et hul
-       assertSame(first.hole, second.hole); // tjekt, at begge kaniner bruger det samme hul
+        world.setTile(holeLocation, second); 
+        second.holeDigging(world); // den anden kanine, bruger hullet, der allerede er der
+
+        assertNotNull(first.hole); // tjekker, atder faktisk et hul
+        assertSame(first.hole, second.hole); // tjekt, at begge kaniner bruger det samme hul
     }
 
     @Test
@@ -136,38 +240,91 @@ public class RabbitTest {
     @Test 
     public void RabbitMovesToHoleAtNight(){
         SmallRabbit rabbit = new SmallRabbit();
-        Hole hole = new Hole();
+        Hole rabbitHole = new Hole();
         Location location = new Location (0,0); // kaninen startfelt
         Location holeLocation = new Location(2, 0); // hulet tile
 
         world.setTile(location, rabbit); //sæt knainen på kortet
 
-        world.setTile(holeLocation, hole); // sæt hullet på kortet
-        
-        rabbit.hole = hole; // give kanine det hul, den skal til
+        world.setTile(holeLocation, rabbitHole); // sæt hullet på kortet
+
+        rabbit.hole = rabbitHole; // give kanine det hul, den skal til
         world.setNight(); // gør det til nat
 
         rabbit.act(world); //kanine går en tur
         Location rabbitNextLocation = world.getLocation(rabbit); // find kaninens ny felt
         assertEquals(1, rabbitNextLocation.getX()); // tjekke at dens x-koordinar nu er 1
 
-// kaninen starter ved x= 0 og hullet x=2, efter 1 skridt mod hullet står kaninen ved (1,0) eller(1,1)
-    
+        // kaninen starter ved x= 0 og hullet x=2, efter 1 skridt mod hullet står kaninen ved (1,0) eller(1,1)
+
     }
 
     @Test 
     public void rabbitStandonHole(){
-        Hole hole = new Hole();
+        Hole rabbitHole = new Hole();
         Location location = new Location(0, 0);
         SmallRabbit rabbit = new SmallRabbit();
 
-        world.setTile(location, hole);
+        world.setTile(location, rabbitHole);
         world.setTile(location, rabbit);
 
-        assertSame(rabbit.hole, world.getNonBlocking(location)); // der ligger hul på det felt
+        assertSame(rabbitHole, world.getNonBlocking(location)); // der ligger hul på det felt
         assertSame(rabbit, world.getTile(location)); //kaninen står på samme felt 
-        
+
     }
 
+    public void rabbitKeepsItsExistingHole() {
+        SmallRabbit rabbit = new SmallRabbit();
+        Hole hole = new Hole();
+        Location holeLocation = new Location(0, 0);
+        Location rabbitLocation = new Location(1, 0);
 
+        world.setTile(holeLocation, hole); // Placér hullet på kortet
+        world.setTile(rabbitLocation, rabbit); // Placér kaninen på et andet felt
+        rabbit.hole = hole; // kaninen knyttet til det eksisterende hul
+
+        rabbit.holeDigging(world); // kaninen forsøge at grave et hul
+
+        assertSame(hole, rabbit.hole); // Kaninen beholder sit oprindelige hul
+        assertFalse(world.containsNonBlocking(rabbitLocation)); // Der er ikke gravet et nyt hul på kaninens felt
+    }
+
+    public void rabbitWakesUpOnHoleTile() {
+        SmallRabbit rabbit = new SmallRabbit();
+        Hole hole = new Hole();
+        Location location = new Location(0, 0);
+
+        world.setTile(location, hole); // Placér hullet
+        world.setTile(location, rabbit); // Placér kaninen oven på hullet
+        rabbit.hole = hole; 
+        world.remove(rabbit); 
+
+        world.setDay(); 
+
+        rabbit.wakeUp(world); // kaninen kommer op af hullet
+
+        assertSame(rabbit, world.getTile(location)); // Kaninen kommer op på hullets eget felt
+    }
+
+    @Test
+    public void rabbitWakesUpOnNeighborWhenHoleTileIsOccupied() {
+        SmallRabbit rabbit = new SmallRabbit();
+        SmallRabbit otherRabbit = new SmallRabbit();
+        Hole hole = new Hole();
+        Location location = new Location(0, 0);
+
+        world.setTile(location, hole); 
+        world.setTile(location, rabbit); 
+        rabbit.hole = hole; 
+        world.remove(rabbit); //  den første kanin er nede i hullet, fjernes fra feltet
+        world.setTile(location, otherRabbit); //  den anden kanin blokere indgangen
+        
+        world.setDay(); 
+
+        rabbit.wakeUp(world); // den første kanin forsøger at komme op
+
+        assertSame(otherRabbit, world.getTile(location)); // Den anden kanin står stadig ved indgangen
+        assertTrue(world.isOnTile(rabbit)); // Den første kanin er kommet op på kortet
+        assertTrue(world.getSurroundingTiles(location).contains(world.getLocation(rabbit))); // Den er kommet op på et nabofelt til hullet
+    }
 }

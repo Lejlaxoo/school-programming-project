@@ -1,6 +1,5 @@
 import itumulator.world.Location;
 import itumulator.world.World;
-import java.util.Random;
 
 public class SmallRabbit extends Animal {
     @Override
@@ -38,16 +37,20 @@ public class SmallRabbit extends Animal {
             sleepIfInHole(world);
         } else {
             moveRandomly(world);
-            if(!eatGrass(world) && new Random().nextInt(3) == 0){
-                energy --; //miste 1 energi hvsi begge betingelser er opfyldt 
+
+            if (eatGrass(world)) {
+                dayTurnsWithoutFood = 0; // Græs nulstiller tælleren
+            } else {
+                dayTurnsWithoutFood++; // Én dagtur uden mad
             }
-            
-            if(energy <= 0) {
+
+            if (energy <= 0 || dayTurnsWithoutFood >= 3) {
                 die(world);
                 return;
             }
         }
-
+        
         wasNight = world.isNight(); 
-    }
+    }   
 }
+

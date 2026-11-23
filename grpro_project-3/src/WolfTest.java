@@ -2,16 +2,14 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-
+import org.junit.jupiter.api.Test;
 import java.util.ArrayList;
 import java.util.List;
-
-import org.junit.jupiter.api.Test;
 
 import itumulator.world.World;
 import itumulator.world.Location;
 
-public class WolfTest { 
+public class WolfTest {
 
     @Test 
     public void WolfDieefter6Turn(){
@@ -21,16 +19,14 @@ public class WolfTest {
         Location location = new Location (0, 0);
         world.setTile(location, wolf);
 
-        wolf.act(world); // første tur uden mad
-        wolf.act(world); // anden tur uden mad
-        wolf.act(world);
-        wolf.act(world);
-        wolf.act(world);
+        for (int turn = 0; turn < 9; turn++) {
+            wolf.act(world);
+        }
 
-        assertSame(wolf, world.getTile(location)); // ulven lever stadig 
+        assertSame(wolf, world.getTile(location)); // Ulven lever efter 9 ture
 
-        wolf.act(world);
-        assertNull(world.getTile(location));
+        wolf.act(world); // Tur 10
+        assertNull(world.getTile(location)); // Ulven er fjernet
     }
 
     @Test 
@@ -52,28 +48,7 @@ public class WolfTest {
         assertSame(wolf, world.getTile(rabbitLocation)); // ulven tager kaninens felt
         assertEquals(energyBeforeHunting + 1, wolf.energy); //ulven fik +1 i energi
 
-
     }
-
-    @Test
-    public void wolfMovesCloserToItsPack() {
-        World world = new World(5);
-        List<Wolf> pack = new ArrayList<>();
-        Wolf wolf = new Wolf(pack);
-        Wolf packMember = new Wolf(pack);
-        Location wolfStart = new Location(0, 0);
-        Location packMemberLocation = new Location(4, 4);
-
-        world.setTile(wolfStart, wolf);
-        world.setTile(packMemberLocation, packMember);
-
-        wolf.act(world);
-
-        Location newLocation = world.getLocation(wolf);
-        int newDistance = Math.max(
-            Math.abs(newLocation.getX() - packMemberLocation.getX()),
-            Math.abs(newLocation.getY() - packMemberLocation.getY())
-        );
-        assertTrue(newDistance < 4);
-    }
+    
+    
 }

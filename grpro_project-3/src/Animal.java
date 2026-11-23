@@ -8,6 +8,7 @@ public abstract class Animal implements Actor {
     protected int energy; 
     protected boolean wasNight = false;
     protected Hole hole;
+    protected int dayTurnsWithoutFood = 0;
     protected static ArrayList<Hole> holes = new ArrayList<>();
     
     public Animal() {
@@ -61,11 +62,7 @@ public abstract class Animal implements Actor {
             world.delete(grass); // fjerner græsset, fordi kaninen spiser det
             this.energy++; // kaninen får 1 energi.
             return true;
-        } else {
-            if (new Random().nextInt(3) == 0) { // dyr mister kun energi ca. hver 3. tur uden mad
-                this.energy--;    
-            } 
-        }
+        } 
         return false;
     }
 
@@ -74,12 +71,12 @@ public abstract class Animal implements Actor {
         for(Location surroundingTile : world.getSurroundingTiles(location)){
             Object prey = world.getTile(surroundingTile);
         
-            if(prey instanceof SmallRabbit || prey instanceof BigRabbit){
-                world.delete(prey); // fjerne kaninen,så tile bliver ledig 
-                world.move(this, surroundingTile); // flytter ulven ind på feltet
+            if (prey instanceof SmallRabbit || prey instanceof BigRabbit || (this instanceof Bear && prey instanceof Wolf)) {
+                world.delete(prey);
+                world.move(this, surroundingTile);
                 this.energy++;
-                return true; // ulven har spist, så stopper jagten
-            } 
+                return true;
+            }
         }
         return false; // ingen kanin på nabofleterne
     }
