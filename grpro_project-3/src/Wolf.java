@@ -10,7 +10,7 @@ public class Wolf extends Animal {
         }
         
         turnsWithoutHunting ++;
-        if (turnsWithoutHunting >= 10){
+        if (turnsWithoutHunting >= 6){
             die(world);
             return;
         }

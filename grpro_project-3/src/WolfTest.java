@@ -10,7 +10,7 @@ import itumulator.world.Location;
 public class WolfTest { 
 
     @Test 
-    public void WolfDieefter3Turn(){
+    public void WolfDieefter6Turn(){
         World world = new World(1); // verden er tomt, kun ulven er der på Et felt //ulven prøver ta jager, men der er ikke nogen
         Wolf wolf = new Wolf();
 
@@ -19,6 +19,9 @@ public class WolfTest {
 
         wolf.act(world); // første tur uden mad
         wolf.act(world); // anden tur uden mad
+        wolf.act(world);
+        wolf.act(world);
+        wolf.act(world);
 
         assertSame(wolf, world.getTile(location)); // ulven lever stadig 
 
