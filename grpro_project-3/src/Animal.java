@@ -58,8 +58,8 @@ public abstract class Animal implements Actor {
         
 
         if (food instanceof Grass grass) { // tjekker om food er et Grass-objekt og giver et navn til det ny variabel her food og grass peger på samme objekt
-            world.delete(grass); // fjerner græsset, fordi dyr spiser det
-            this.energy++; // dyr får 1 energi.
+            world.delete(grass); // fjerner græsset, fordi kaninen spiser det
+            this.energy++; // kaninen får 1 energi.
             return true;
         } else {
             if (new Random().nextInt(3) == 0) { // dyr mister kun energi ca. hver 3. tur uden mad
@@ -85,7 +85,7 @@ public abstract class Animal implements Actor {
     }
     
     public void die(World world){
-        world.delete(this);
+       world.delete(this);
     }
 
 
@@ -165,7 +165,7 @@ public abstract class Animal implements Actor {
         Set<Location> locations =
             world.getEmptySurroundingTiles(rabbitLocation); // henter alle de tommer nabofleter omkring kaninen 
 
-        for (Location surreoundingTileLocation : locations) { // for hver location i locations:
+    for (Location surreoundingTileLocation : locations) { // for hver location i locations:
             if ((holeLocation.getX() > rabbitLocation.getX() && surreoundingTileLocation.getX() > rabbitLocation.getX()) || (holeLocation.getX() < rabbitLocation.getX() && surreoundingTileLocation.getX() < rabbitLocation.getX()) ||
             (holeLocation.getY() > rabbitLocation.getY() && surreoundingTileLocation.getY() > rabbitLocation.getY()) || (holeLocation.getY() < rabbitLocation.getY() && surreoundingTileLocation.getY() < rabbitLocation.getY())) { 
             // if spørge føre det her nabofelt kaninen i retning af hullet på mindst 1 akse? 
@@ -207,164 +207,6 @@ public abstract class Animal implements Actor {
         }
     }
 
-        public void moveRandomlyandEat(World world) {
-        Location location = world.getLocation(this);
-
-        Set<Location> emptyLocations =
-        world.getEmptySurroundingTiles(location);
-
-        if (!emptyLocations.isEmpty()) {
-            List<Location> locations = new ArrayList<>(emptyLocations);
-            Random random = new Random();
-
-            Location randomLocation = locations.get(random.nextInt(locations.size()));
-
-            world.move(this, randomLocation); // Flytter denne kanin til det valgte tile
-
-        }
-
-        location = world.getLocation(this); // Opdaterer location efter flytning
-        Object food = world.getNonBlocking(location); // henter den Tile hvor kaninen står, og tjekker om der er noget (nonBlocking-objekt) på den.
-        
-
-        if (food instanceof Grass) { // tjekker om food er et Grass-objekt 
-            
-            world.delete(food); // fjerner græsset, fordi kaninen spiser det
-            this.energy++; // kaninen får 1 energi.
-
-        } else {
-
-            this.energy--; //kaninen mister 1 energi, fordi den ikke spiser noget.
-            if (new Random().nextInt(3) == 0) { // kaninen mister kun energi ca. hver 3. tur uden mad
-         this.energy--;
-}
-
-        }
-
-    }
-
-
-public void getRabbitHole(World world) {
-    if (rabbitHole != null) {
-        return;
-    }
-    findRabbitHole(rabbitHoles, world);
-}
- public void moveTowardsRabbitHole(World world) {
-
-    // Hvis kaninen ikke har et kaninhul, afsluttes metoden.
-    if (rabbitHole == null) {
-        return;
-    }
-
-    // Finder kaninens nuværende position.
-    Location rabbitLocation = world.getLocation(this);
-
-    // Finder kaninhullets position.
-    Location holeLocation = world.getLocation(rabbitHole);
-
-    // Hvis kaninen allerede står ved hullet, skal den ikke flytte sig.
-    if (rabbitLocation.equals(holeLocation)) {
-        return;
-    }
-
-    // Finder alle felterne omkring kaninen.
-    Set<Location> locations =
-            world.getSurroundingTiles(rabbitLocation);
-
-    // Gemmer den bedste position.
-    Location bestLocation = null;
-
-    // Beregner afstanden på X- og Y-aksen.
-    int xDistance = holeLocation.getX() - rabbitLocation.getX();
-    int yDistance = holeLocation.getY() - rabbitLocation.getY();
-
-    // Hvis afstanden er negativ, gør vi den positiv.
-    if (xDistance < 0) {
-        xDistance = -xDistance;
-    }
-
-    if (yDistance < 0) {
-        yDistance = -yDistance;
-    }
-
-    // Lægger X- og Y-afstanden sammen.
-    int currentDistance = xDistance + yDistance;
-
-    // Gemmer den nuværende afstand som den korteste afstand.
-    int shortestDistance = currentDistance;
-
-    // Gennemgår alle felterne omkring kaninen.
-    for (Location location : locations) {
-
-        if (!world.isTileEmpty(location)
-            && !world.containsNonBlocking(location)) {
-        continue;
-    }
-
-        // Beregner afstanden fra nabofeltet til hullet.
-        int newXDistance = holeLocation.getX() - location.getX();
-        int newYDistance = holeLocation.getY() - location.getY();
-
-        // Hvis X-afstanden er negativ, gør vi den positiv.
-        if (newXDistance < 0) {
-            newXDistance = -newXDistance;
-        }
-
-        // Hvis Y-afstanden er negativ, gør vi den positiv.
-        if (newYDistance < 0) {
-            newYDistance = -newYDistance;
-        }
-
-        // Lægger de to afstande sammen.
-        int distance = newXDistance + newYDistance;
-
-        // Undersøger om dette felt bringer kaninen tættere på hullet.
-        if (distance < shortestDistance) {
-
-            // Gemmer den nye korteste afstand.
-            shortestDistance = distance;
-
-            // Gemmer positionen som den bedste position.
-            bestLocation = location;
-        }
-    }
-
-    // Hvis vi har fundet en bedre position, flytter vi kaninen.
-    if (bestLocation != null) {
-        world.move(this, bestLocation);
-    }
-}
 
 }
-<<<<<<< Updated upstream
-}
-public void sleepIfInHole(World world) {
-    if (rabbitHole == null || !world.isOnTile(this)) {
-        return;
-    }
-    Location rabbitLocation = world.getLocation(this);
-    Location holeLocation = world.getLocation(rabbitHole);
-=======
->>>>>>> Stashed changes
 
-    if (rabbitLocation.getX() == holeLocation.getX() && rabbitLocation.getY() == holeLocation.getY()) {
-        world.remove(this); // remove = væk fra kortet, men stadig i live (delete = død)
-    }
-}
-public void wakeUp(World world) {
-    if (world.isOnTile(this) || rabbitHole == null) {
-        return; // kaninen er allerede vågen
-    }
-    Location holeLocation = world.getLocation(rabbitHole);
-
-    if (world.isTileEmpty(holeLocation)) {
-        world.setTile(holeLocation, this); // titter frem på hullet
-    } else {
-        Set<Location> emptyLocations = world.getEmptySurroundingTiles(holeLocation);
-        if (!emptyLocations.isEmpty()) {
-            world.setTile(emptyLocations.iterator().next(), this); // en anden står på hullet → kom op ved siden af
-        }
-    }
-    }
-}
