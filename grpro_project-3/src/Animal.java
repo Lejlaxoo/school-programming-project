@@ -206,7 +206,5 @@ public abstract class Animal implements Actor {
             }
         }
     }
-
-
 }
 
