@@ -14,9 +14,10 @@ public class Main {
         int grassCount = 0;
         int burrowCount =0;
         int rabbitCount = 0;
+        int wolfCount = 0;
 
         Random random = new Random(); 
-        try (Scanner scanner = new Scanner(new File("Data/t1-3a.txt"))) {
+        try (Scanner scanner = new Scanner(new File("Data/t2-1c.txt"))) {
             size = scanner.nextInt();
 
             while (scanner.hasNext()) {
@@ -36,6 +37,8 @@ public class Main {
                     burrowCount = count;
                 } else if (type.equals("rabbit")) {
                     rabbitCount = count;
+                } else if (type.equals("wolf")) {
+                    wolfCount = count;
                 }
             }
 
@@ -97,7 +100,24 @@ public class Main {
         p.setDisplayInformation(BigRabbit.class, new DisplayInformation(Color.WHITE, "rabbit-large")); 
         p.setDisplayInformation(SmallRabbit.class, new DisplayInformation(Color.WHITE, "rabbit-small"));
 
-        p.show(); 
+        for (int i = 0; i < wolfCount; i++) {
+            int x = random.nextInt(size);
+            int y = random.nextInt(size); 
+            Location randomLocation = new Location(x, y);
+
+            while (w.containsNonBlocking(randomLocation)) {
+                x = random.nextInt(size);
+                y = random.nextInt(size);
+                randomLocation = new Location(x, y);
+            }
+
+            w.setTile(randomLocation, new Wolf()); // Placerer ulve på et tilfældigt tile i verdenen
+
+        }
+        p.setDisplayInformation( Wolf.class, new DisplayInformation(Color.BLACK, "wolf"));
+        
+        p.show();
+        
     }
 
     private static int getRandomCount(String range, Random random) {
