@@ -19,7 +19,7 @@ public class Main {
         List<Integer> wolfPackSizes = new ArrayList<>();
 
         Random random = new Random(); 
-        try (Scanner scanner = new Scanner(new File("Data/t2-1c.txt"))) {
+        try (Scanner scanner = new Scanner(new File("Data/t2-3a.txt"))) {
             size = scanner.nextInt();
             scanner.nextLine();
 
@@ -104,21 +104,26 @@ public class Main {
         p.setDisplayInformation(SmallRabbit.class, new DisplayInformation(Color.WHITE, "rabbit-small"));
 
         for (int packSize : wolfPackSizes) {
-            List<Wolf> pack = new ArrayList<>();
-            for (int i = 0; i < packSize; i++) {
-                int x = random.nextInt(size);
-                int y = random.nextInt(size);
-                Location randomLocation = new Location(x, y);
+        WolfPack pack = new WolfPack(); // Opretter én ny flok for denne inputlinje.
+      
+        for (int i = 0; i < packSize; i++) {
+        int x = random.nextInt(size);
+        int y = random.nextInt(size);
 
-                while (!w.isTileEmpty(randomLocation) || w.containsNonBlocking(randomLocation)) {
-                    x = random.nextInt(size);
-                    y = random.nextInt(size);
-                    randomLocation = new Location(x, y);
-                }
+        Location randomLocation = new Location(x, y);
 
-                w.setTile(randomLocation, new Wolf(pack)); // Placerer ulve fra samme inputlinje i én flok
-            }
+        while (!w.isTileEmpty(randomLocation) || w.containsNonBlocking(randomLocation)) { // Finder et ledigt felt.
+            x = random.nextInt(size);
+            y = random.nextInt(size);
+
+            randomLocation = new Location(x, y);
         }
+
+        Wolf wolf = new Wolf(pack); // Opretter ulven i den fælles flok.
+
+        w.setTile(randomLocation, wolf); // Placerer ulven i verden.
+    }
+}
         p.setDisplayInformation( Wolf.class, new DisplayInformation(Color.BLACK, "wolf"));
         
         p.show();
@@ -134,7 +139,7 @@ public class Main {
 
     private static void holeDigging(World world, Location place) { // kaninen hul der allerede ligger på kortet når stimulation begynder og kan kaniner bruger det her hul til fx sove
        Hole hole = new Hole();
-        world.setTile(place, hole);
+     world.setTile(place, hole);
         Animal.addHole(hole);
     }
 }

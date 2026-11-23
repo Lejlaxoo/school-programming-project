@@ -93,8 +93,8 @@ public class RabbitTest {
 
         smallRabbit.holeDigging(world);
 
-        assertTrue(world.getNonBlocking(location) instanceof RabbitHole); //tjkker om kaninen har gravet et hul
-        assertSame(world.getNonBlocking(location), smallRabbit.rabbitHole); //tjekker om kaninen er knyttet til hullet
+        assertTrue(world.getNonBlocking(location) instanceof Hole); //tjkker om kaninen har gravet et hul
+        assertSame(world.getNonBlocking(location), smallRabbit.hole); //tjekker om kaninen er knyttet til hullet
 
     }
 
@@ -112,19 +112,19 @@ public class RabbitTest {
        world.setTile(holeLocation, second); 
        second.holeDigging(world); // den anden kanine, bruger hullet, der allerede er der
 
-       assertNotNull(first.rabbitHole); // tjekker, atder faktisk et hul
-       assertSame(first.rabbitHole, second.rabbitHole); // tjekt, at begge kaniner bruger det samme hul
+       assertNotNull(first.hole); // tjekker, atder faktisk et hul
+       assertSame(first.hole, second.hole); // tjekt, at begge kaniner bruger det samme hul
     }
 
     @Test
     public void RabbitGoesinHoleatNight() {
         SmallRabbit rabbit = new SmallRabbit();
-        RabbitHole hole = new RabbitHole();
+        Hole hole = new Hole();
         Location location = new Location(0, 0);
 
         world.setTile(location, hole);
         world.setTile(location, rabbit);
-        rabbit.rabbitHole = hole; // Giv kaninen det hul, den står på
+        rabbit.hole = hole; // Giv kaninen det hul, den står på
         world.setNight();
 
         rabbit.act(world);
@@ -136,15 +136,15 @@ public class RabbitTest {
     @Test 
     public void RabbitMovesToHoleAtNight(){
         SmallRabbit rabbit = new SmallRabbit();
-        RabbitHole rabbitHole = new RabbitHole();
+        Hole hole = new Hole();
         Location location = new Location (0,0); // kaninen startfelt
         Location holeLocation = new Location(2, 0); // hulet tile
 
         world.setTile(location, rabbit); //sæt knainen på kortet
 
-        world.setTile(holeLocation, rabbitHole); // sæt hullet på kortet
+        world.setTile(holeLocation, hole); // sæt hullet på kortet
         
-        rabbit.rabbitHole = rabbitHole; // give kanine det hul, den skal til
+        rabbit.hole = hole; // give kanine det hul, den skal til
         world.setNight(); // gør det til nat
 
         rabbit.act(world); //kanine går en tur
@@ -157,14 +157,14 @@ public class RabbitTest {
 
     @Test 
     public void rabbitStandonHole(){
-        RabbitHole rabbitHole = new RabbitHole();
+        Hole hole = new Hole();
         Location location = new Location(0, 0);
         SmallRabbit rabbit = new SmallRabbit();
 
-        world.setTile(location, rabbitHole);
+        world.setTile(location, hole);
         world.setTile(location, rabbit);
 
-        assertSame(rabbitHole, world.getNonBlocking(location)); // der ligger hul på det felt
+        assertSame(rabbit.hole, world.getNonBlocking(location)); // der ligger hul på det felt
         assertSame(rabbit, world.getTile(location)); //kaninen står på samme felt 
         
     }

@@ -7,4 +7,5 @@ public class Hole implements Actor, NonBlocking {
     public void act(World world) {
         
     }
+
 }

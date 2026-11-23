@@ -251,17 +251,17 @@ public class World {
      * Additionally, if the object already exists elsewhere in the world, it cannot be placed again.
      * Note that setTile does not update the current location. Thus, one cannot after using setTile use the overloaded methods (e.g., {@link #getEmptySurroundingTiles}) as the current location is not set.
      * 
-     * @param location The location where the object will be placed.
+     * @param hole The location where the object will be placed.
      * @param object   The object to place at the specified location.
      * @throws IllegalArgumentException if the tile is occupied by the same type of object, or if the object already exists on the map, or if the location is out of bounds.
      */
-    public void setTile(Location location, Object object) {
+    public void setTile(Hole hole, Object object) {
         if (entities.get(object) != null) {
             throw new IllegalArgumentException("Entity already exists in the world.");
         }
-        validateCoordinates(location);
+        validateCoordinates(hole);
 
-        Object[] tile = this.tiles[location.getX()][location.getY()];
+        Object[] tile = this.tiles[hole.getX()][hole.getY()];
 
         if (object instanceof NonBlocking) {
             if (tile[0] != null)
@@ -274,7 +274,7 @@ public class World {
             tile[1] = object;
         }
 
-        entities.put(object, location);
+        entities.put(object, hole);
     }
 
     /**
