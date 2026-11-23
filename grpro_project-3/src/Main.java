@@ -8,20 +8,15 @@ import java.io.FileNotFoundException;
 import java.util.Random;
 import java.util.Scanner;
 
-
 public class Main {
-
     public static void main(String[] args) throws FileNotFoundException {
-    int size;
-    int grassCount = 0;
-    int burrowCount =0;
-    int rabbitCount = 0;
-    int wolfCount = 0;
-
+        int size;
+        int grassCount = 0;
+        int burrowCount =0;
+        int rabbitCount = 0;
 
         Random random = new Random(); 
-       
-        try (Scanner scanner = new Scanner(new File("Data/t2-1c.txt"))) {
+        try (Scanner scanner = new Scanner(new File("Data/t1-3a.txt"))) {
             size = scanner.nextInt();
 
             while (scanner.hasNext()) {
@@ -41,8 +36,6 @@ public class Main {
                     burrowCount = count;
                 } else if (type.equals("rabbit")) {
                     rabbitCount = count;
-                } else if (type.equals("wolf")) {
-                    wolfCount = count;
                 }
             }
 
@@ -52,8 +45,8 @@ public class Main {
         }
 
         Program p = new Program( size, 800, 75);
-        World w = p.getWorld();  
 
+        World w = p.getWorld();  
 
         for (int i = 0; i < grassCount; i++) {
             int x = random.nextInt(size);
@@ -65,75 +58,44 @@ public class Main {
                 y = random.nextInt(size);
                 randomLocation = new Location(x, y);
             }
-            
+
             w.setTile(randomLocation, new Grass()); // Placerer græs på et tilfældigt tile i verdenen
 
         }
-
         p.setDisplayInformation( Grass.class, new DisplayInformation(new Color(1, 142, 66), "grass"));
+        p.setDisplayInformation(RabbitHole.class, new DisplayInformation(Color.magenta, "hole")); 
 
         for (int i = 0; i < rabbitCount; i++) {
             int x = random.nextInt(size);
             int y = random.nextInt(size); 
-            
+
             Location randomLocation = new Location(x, y);
 
-                while (!w.isTileEmpty(randomLocation)) {
-                    x = random.nextInt(size);
-                    y = random.nextInt(size);
-                    randomLocation = new Location(x, y);
-                }
-                SmallRabbit rabbit = new SmallRabbit();
-                w.setTile(randomLocation, rabbit); 
+            while (!w.isTileEmpty(randomLocation)) {
+                x = random.nextInt(size);
+                y = random.nextInt(size);
+                randomLocation = new Location(x, y);
+            }
+            SmallRabbit rabbit = new SmallRabbit();
+            w.setTile(randomLocation, rabbit); 
+
         }
-
-        p.setDisplayInformation(BigRabbit.class, new DisplayInformation(Color.WHITE, "rabbit-large")); 
-        p.setDisplayInformation(SmallRabbit.class, new DisplayInformation(Color.WHITE, "rabbit-small"));
-
         for (int i = 0; i < burrowCount; i++) {
             int x = random.nextInt(size);
             int y = random.nextInt(size);
             Location randomLocation = new Location(x, y);
 
-<<<<<<< Updated upstream
             while (!w.isTileEmpty(randomLocation) ||
-                w.containsNonBlocking(randomLocation)) {
-                    x = random.nextInt(size);
-                    y = random.nextInt(size);
-                    randomLocation = new Location(x, y);
-                }
+            w.containsNonBlocking(randomLocation)) {
+                x = random.nextInt(size);
+                y = random.nextInt(size);
+                randomLocation = new Location(x, y);
+            }
             holeDigging(w, randomLocation);
 
         }
-
-        p.setDisplayInformation(RabbitHole.class, new DisplayInformation(Color.magenta, "hole")); 
-=======
-                while (!w.isTileEmpty(randomLocation) || w.containsNonBlocking(randomLocation)) {
-                     x = random.nextInt(size);
-                      y = random.nextInt(size);
-                    randomLocation = new Location(x, y);
-}
-             holeDigging(w, randomLocation);
->>>>>>> Stashed changes
-
-          
-        for (int i = 0; i < wolfCount; i++) {
-            int x = random.nextInt(size);
-            int y = random.nextInt(size);
-            Location randomLocation = new Location(x, y);
-
-            while (!w.isTileEmpty(randomLocation) ||
-                    w.containsNonBlocking(randomLocation)) {
-                        x = random.nextInt(size);
-                        y = random.nextInt(size);
-                        randomLocation = new Location(x, y);
-                    }
-            
-            w.setTile(randomLocation, new Wolf());
-
-        }
-
-        p.setDisplayInformation(Wolf.class, new DisplayInformation(Color.BLACK, "wolf")); 
+        p.setDisplayInformation(BigRabbit.class, new DisplayInformation(Color.WHITE, "rabbit-large")); 
+        p.setDisplayInformation(SmallRabbit.class, new DisplayInformation(Color.WHITE, "rabbit-small"));
 
         p.show(); 
     }
@@ -146,8 +108,8 @@ public class Main {
     }
 
     private static void holeDigging(World world, Location place) { // kaninen hul der allerede ligger på kortet når stimulation begynder og kan kaniner bruger det her hul til fx sove
-    RabbitHole hole = new RabbitHole();
-    world.setTile(place, hole);
-    Animal.addRabbitHole(hole);
-}
+        RabbitHole hole = new RabbitHole();
+        world.setTile(place, hole);
+        Animal.addRabbitHole(hole);
+    }
 }
