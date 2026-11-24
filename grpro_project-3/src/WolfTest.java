@@ -6,8 +6,6 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import org.junit.jupiter.api.Test;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Scanner;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -47,7 +45,7 @@ public class WolfTest {
         world.setTile(wolfLocation, wolf);
         world.setTile(rabbitLocation, rabbit);
 
-        int energyBeforeHunting = wolf.energy; 
+        double energyBeforeHunting = wolf.energy;
 
         wolf.act(world);
 
@@ -72,7 +70,7 @@ public class WolfTest {
         world.setTile(firstLocation, firstRabbit);
         world.setTile(secondLocation, secondRabbit);
 
-        int energyBeforeHunting = wolf.energy;
+        double energyBeforeHunting = wolf.energy;
 
         wolf.act(world);
 
@@ -104,7 +102,7 @@ public class WolfTest {
     public void inputFileHasTwoWolfLines() throws FileNotFoundException {
         int wolfLines = 0;
 
-        try (Scanner scanner = new Scanner(new File("Data/t2-3a.txt"))) {
+        try (Scanner scanner = new Scanner(new File("Data/Tema2/t2-3a.txt"))) {
             while (scanner.hasNextLine()) {
                 String line = scanner.nextLine().trim();
 
@@ -341,7 +339,7 @@ public class WolfTest {
         world.setTile(new Location(6, 6), rivalPackMember); // Tæller med i flokken
         world.setDay();
 
-        int energyBeforeHunt = rival.energy;
+        double energyBeforeHunt = rival.energy;
         wolf.act(world);
 
         assertFalse(world.contains(wolf)); // Ulven fra den mindre flok taber
@@ -426,5 +424,34 @@ public class WolfTest {
 
         assertFalse(world.contains(secondRabbit)); // Andet måltid
         assertFalse(baby.isBaby()); // Nu er ulven voksen
+    }
+
+    @Test
+    public void adultWolfCanHaveBabyBesideDen() {
+        World world = new World(3);
+        WolfPack pack = new WolfPack();
+
+        Wolf adult = new Wolf(pack){
+            @Override
+                int rollForBaby() {
+                    return 24; // Kun denne testulv trækker altid 24
+                }
+        };
+
+        Hole den = new Hole();
+        Location denLocation = new Location(1, 1);
+
+        world.setTile(denLocation, den);
+        pack.setDen(den);
+        world.setTile(denLocation, adult); // Den voksne ulv står på hulens felt
+        world.setDay();
+
+        adult.act(world); 
+
+        assertEquals(2, pack.getWolves().size()); // Flokken har nu én voksen og én unge
+
+        Wolf baby = pack.getWolves().get(1);
+        assertTrue(baby.isBaby());
+        assertTrue(world.getSurroundingTiles(denLocation) .contains(world.getLocation(baby))); // Ungen står på et nabofelt til hulen
     }
 }

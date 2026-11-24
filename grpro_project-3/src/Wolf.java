@@ -159,7 +159,7 @@ public class Wolf extends Animal {
             return;
         }
 
-        if (random.nextInt(100) >= 25) {
+        if (rollForBaby() >= 25) {
             return; // 25 % chance for en unge.
         }
         List<Location> emptyLocations =
@@ -322,7 +322,11 @@ public class Wolf extends Animal {
             }
         }
     } 
-    private boolean isBaby() {
+    protected boolean isBaby() {
         return isBaby; 
+    }
+
+     int rollForBaby() {
+        return random.nextInt(100); // Trækker et tal fra 0 til 99
     }
 }
