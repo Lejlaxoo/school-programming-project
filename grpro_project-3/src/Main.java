@@ -18,6 +18,8 @@ public class Main {
         int rabbitCount = 0;
         List<Integer> wolfPackSizes = new ArrayList<>();
         int bearCount = 0;
+        int normalBushCount = 0;
+        int berryBushCount = 0;
 
         Random random = new Random(); 
         try (Scanner scanner = new Scanner(new File("Data/t2-4b.txt"))) {
@@ -45,6 +47,10 @@ public class Main {
                     wolfPackSizes.add(count);
                 } else if (type.equals("bear")) {
                     bearCount = count; 
+                } else if (type.equals("normalBush")) {
+                    normalBushCount = count;
+                } else if (type.equals("berryBush")) {
+                    berryBushCount = count;
                 }
             }
 
@@ -148,6 +154,39 @@ public class Main {
         }
         p.setDisplayInformation(Bear.class, new DisplayInformation(Color.WHITE, "bear"));
 
+
+        for (int i = 0; i < normalBushCount; i++) {
+    int x = random.nextInt(size);
+    int y = random.nextInt(size);
+
+    Location randomLocation = new Location(x, y);
+
+    while (!w.isTileEmpty(randomLocation)) {
+        x = random.nextInt(size);
+        y = random.nextInt(size);
+        randomLocation = new Location(x, y);
+    }
+
+    w.setTile(randomLocation, new Bush(false));
+}
+
+for (int i = 0; i < berryBushCount; i++) {
+    int x = random.nextInt(size);
+    int y = random.nextInt(size);
+
+    Location randomLocation = new Location(x, y);
+
+    while (!w.isTileEmpty(randomLocation)) {
+        x = random.nextInt(size);
+        y = random.nextInt(size);
+        randomLocation = new Location(x, y);
+    }
+
+    w.setTile(randomLocation, new Bush(true));
+}
+
+p.setDisplayInformation(Bush.class,new DisplayInformation(Color.GREEN, "bush")); 
+p.setDisplayInformation(Bush.class, new DisplayInformation(Color.GREEN, "bush-berries"));
         p.show();
         
     }

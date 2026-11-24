@@ -9,11 +9,15 @@ public class BigRabbit extends Animal {
 
     private boolean hasReproduced = false; 
 
-    public BigRabbit(int age, int energy) {
+    public BigRabbit(int age, double energy) {
         this.age = age;
         this.energy = energy;
     }
      
+    public BigRabbit(int age, double energy) {
+        //TODO Auto-generated constructor stub
+    }
+
     @Override
     public void act(World world) {
         if(!updateAge(world)) {

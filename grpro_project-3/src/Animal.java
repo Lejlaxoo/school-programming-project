@@ -5,7 +5,7 @@ import java.util.*;
 
 public abstract class Animal implements Actor {
     protected int age; 
-    protected int energy; 
+    protected double energy; 
     protected boolean wasNight = false;
     protected Hole hole;
     protected int dayTurnsWithoutFood = 0;
@@ -22,9 +22,7 @@ public abstract class Animal implements Actor {
 
     public boolean updateAge(World world) {
         if (world.isDay() && wasNight) { // Hvis det er dag nu, og det var nat ved sidste tur, er en ny dag begyndt.
-            
             age++; // Kaninen bliver ældre med 1 år.
-           
             if(age >= 12) {
             world.delete(this); // Fjerner kaninen fra verdenen, hvis den er 12 år eller ældre.
             return false; // Afslutter metoden, så der ikke udføres yderligere handlinger for denne tur.
@@ -81,6 +79,22 @@ public abstract class Animal implements Actor {
         return false; // ingen kanin på nabofleterne
     }
     
+public boolean huntEverything(World world) { // Bjørnens jagtmetode, hvor den kan spise alle dyr.
+    Location location = world.getLocation(this);
+
+    for (Location surroundingTile : world.getSurroundingTiles(location)) {
+        Object prey = world.getTile(surroundingTile);
+
+        if (prey instanceof Animal && prey != this) {     // Bjørnen kan spise alle dyr, der arver fra Animal.
+            world.delete(prey);
+            world.move(this, surroundingTile);
+            this.energy += 2; // Bjørnen får energi af at spise.
+            return true;
+        }
+    }
+    return false;
+}
+
     public void die(World world){
        world.delete(this);
     }

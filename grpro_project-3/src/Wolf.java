@@ -316,5 +316,8 @@ public class Wolf extends Animal {
                 isBaby = false; // En unge bliver voksen efter to måltider.
             }
         }
+    } 
+    private boolean isBaby() {
+        return isBaby; 
     }
 }
