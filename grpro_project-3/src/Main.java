@@ -22,7 +22,7 @@ public class Main {
         int berryBushCount = 0;
 
         Random random = new Random(); 
-        try (Scanner scanner = new Scanner(new File("Data/t2-4b.txt"))) {
+        try (Scanner scanner = new Scanner(new File("Data/t1-1b.txt"))) {
             size = scanner.nextInt();
             scanner.nextLine();
 

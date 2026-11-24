@@ -13,10 +13,6 @@ public class BigRabbit extends Animal {
         this.age = age;
         this.energy = energy;
     }
-     
-    public BigRabbit(int age, double energy) {
-        //TODO Auto-generated constructor stub
-    }
 
     @Override
     public void act(World world) {
