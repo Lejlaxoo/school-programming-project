@@ -1,4 +1,3 @@
-
 import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -146,9 +145,13 @@ public class RabbitTest {
     public void RabbitReproduceatNight(){
         BigRabbit rabbit = new BigRabbit(3, 10);
         Location location = new Location(0, 0);
+        Hole hole = new Hole();
+        world.setTile(new Location(2, 2), hole); // Placér hullet på 3 × 3-kortet
+        rabbit.hole = hole;
 
         world.setTile(location, rabbit);
-        rabbit.reproduce(world);
+        world.setNight();
+        rabbit.act(world);
 
         assertTrue(
             world.getTile(new Location(0, 1)) instanceof SmallRabbit ||
@@ -186,6 +189,22 @@ public class RabbitTest {
         assertSame(firstRabbit, world.getTile(first));
         assertSame(secondRabbit, world.getTile(second));
         assertSame(thirdRabbit, world.getTile(third));
+    }
+
+    @Test
+    public void rabbitDoesNotReproduceDuringDay() {
+        World world = new World(2);
+        BigRabbit rabbit = new BigRabbit(3, 10);
+        Location start = new Location(0, 0);
+
+        world.setTile(start, rabbit);
+        world.setDay(); //  det bliver til dag
+        rabbit.act(world); //  kaninen tage sin normale dagtur
+
+        assertFalse(world.getTile(start) instanceof SmallRabbit);
+        assertFalse(world.getTile(new Location(0, 1)) instanceof SmallRabbit);
+        assertFalse(world.getTile(new Location(1, 0)) instanceof SmallRabbit);
+        assertFalse(world.getTile(new Location(1, 1)) instanceof SmallRabbit);
     }
 
     @Test 
@@ -318,7 +337,7 @@ public class RabbitTest {
         rabbit.hole = hole; 
         world.remove(rabbit); //  den første kanin er nede i hullet, fjernes fra feltet
         world.setTile(location, otherRabbit); //  den anden kanin blokere indgangen
-        
+
         world.setDay(); 
 
         rabbit.wakeUp(world); // den første kanin forsøger at komme op
