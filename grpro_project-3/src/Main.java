@@ -14,7 +14,7 @@ public class Main {
     public static void main(String[] args) throws FileNotFoundException {
         int size;
         int grassCount = 0;
-        int burrowCount =0;
+        int burrowCount =0; 
         int rabbitCount = 0;
         List<Integer> wolfPackSizes = new ArrayList<>();
         int bearCount = 0;
@@ -22,7 +22,7 @@ public class Main {
         int berryBushCount = 0;
 
         Random random = new Random(); 
-        try (Scanner scanner = new Scanner(new File("Data/t1-1b.txt"))) {
+        try (Scanner scanner = new Scanner(new File("Data/Love.txt"))) {
             size = scanner.nextInt();
             scanner.nextLine();
 
@@ -161,14 +161,15 @@ public class Main {
 
     Location randomLocation = new Location(x, y);
 
-    while (!w.isTileEmpty(randomLocation)) {
+    while (!w.isTileEmpty(randomLocation) || w.containsNonBlocking(randomLocation)) {
         x = random.nextInt(size);
         y = random.nextInt(size);
         randomLocation = new Location(x, y);
     }
 
-    w.setTile(randomLocation, new Bush(false));
+    w.setTile(randomLocation, new NormalBush());
 }
+p.setDisplayInformation(NormalBush.class, new DisplayInformation(Color.GREEN, "bush"));
 
 for (int i = 0; i < berryBushCount; i++) {
     int x = random.nextInt(size);
@@ -176,18 +177,17 @@ for (int i = 0; i < berryBushCount; i++) {
 
     Location randomLocation = new Location(x, y);
 
-    while (!w.isTileEmpty(randomLocation)) {
+   while (!w.isTileEmpty(randomLocation) || w.containsNonBlocking(randomLocation)) {
         x = random.nextInt(size);
         y = random.nextInt(size);
         randomLocation = new Location(x, y);
     }
 
-    w.setTile(randomLocation, new Bush(true));
+   w.setTile(randomLocation, new BerryBush());
 }
-
-p.setDisplayInformation(Bush.class,new DisplayInformation(Color.GREEN, "bush")); 
-p.setDisplayInformation(Bush.class, new DisplayInformation(Color.GREEN, "bush-berries"));
-        p.show();
+p.setDisplayInformation(BerryBush.class, new DisplayInformation(Color.GREEN, "bush-berries"));
+       
+p.show();
         
     }
 

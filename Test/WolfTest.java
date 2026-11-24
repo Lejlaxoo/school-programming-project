@@ -47,7 +47,7 @@ public class WolfTest {
         world.setTile(wolfLocation, wolf);
         world.setTile(rabbitLocation, rabbit);
 
-        int energyBeforeHunting = wolf.energy;
+        int energyBeforeHunting = wolf.energy; 
 
         wolf.act(world);
 

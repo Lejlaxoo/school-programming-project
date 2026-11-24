@@ -79,7 +79,7 @@ public class Wolf extends Animal {
             enterDenAtNight(world);
         } else {
             reproduceAtDen(world);
-            moveRandomly(world); // Led efter mad væk fra hulen.
+            moveTowardsPack(world);
         }
     }
 
@@ -147,8 +147,13 @@ public class Wolf extends Animal {
             return; // Kun voksne ulve kan få unger.
         }
 
-        Location denLocation = world.getLocation(pack.getDen());
-        Location wolfLocation = world.getLocation(this);
+         Hole den = pack.getDen();
+
+            if (den == null || !world.contains(den)) {
+            return;
+        }
+            Location denLocation = world.getLocation(den);
+            Location wolfLocation = world.getLocation(this);
 
         if (distance(wolfLocation, denLocation) > 1) {
             return;
@@ -157,7 +162,6 @@ public class Wolf extends Animal {
         if (random.nextInt(100) >= 25) {
             return; // 25 % chance for en unge.
         }
-
         List<Location> emptyLocations =
                 new ArrayList<>(world.getEmptySurroundingTiles(denLocation));
 
@@ -167,6 +171,7 @@ public class Wolf extends Animal {
             world.setTile(babyLocation, new Wolf(pack, true));
         }
     }
+    
 
     private void moveTowardsPack(World world) {
         Location location = world.getLocation(this);
