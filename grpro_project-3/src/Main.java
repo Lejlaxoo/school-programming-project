@@ -17,7 +17,7 @@ public class Main {
         int burrowCount =0; 
         int rabbitCount = 0;
         List<Integer> wolfPackSizes = new ArrayList<>();
-        int bearCount = 0;
+        List<Location> bearLocations = new ArrayList<>();
         int normalBushCount = 0;
         int berryBushCount = 0;
 
@@ -45,8 +45,37 @@ public class Main {
                     rabbitCount = count;
                 } else if (type.equals("wolf")) {
                     wolfPackSizes.add(count);
-                } else if (type.equals("bear")) {
-                    bearCount = count; 
+                }  else if (type.equals("bear")) {
+
+                    String coordinates = scanner.nextLine();
+
+                    if (coordinates.indexOf('(') != -1 &&
+                    coordinates.indexOf(',') != -1 &&
+                    coordinates.indexOf(')') != -1) {
+
+                    String xText = coordinates.substring(
+                        coordinates.indexOf('(') + 1,
+                        coordinates.indexOf(',')
+                    );
+
+                        String yText = coordinates.substring(
+                            coordinates.indexOf(',') + 1,
+                            coordinates.indexOf(')')
+                        );
+
+                        int x = Integer.parseInt(xText);
+                        int y = Integer.parseInt(yText);
+
+                        Location bearLocation = new Location(x, y);
+                        bearLocations.add(bearLocation);
+
+                    } else {
+
+                        for (int i = 0; i < count; i++) {
+                            bearLocations.add(null);
+                        }
+                }
+
                 } else if (type.equals("normalBush")) {
                     normalBushCount = count;
                 } else if (type.equals("berryBush")) {
@@ -138,20 +167,38 @@ public class Main {
         p.setDisplayInformation( Wolf.class, new DisplayInformation(Color.BLACK, "wolf"));
         p.setDisplayInformation( Hole.class, new DisplayInformation(Color.BLACK, "hole"));
         
-        for (int i = 0; i < bearCount; i++) {
-            int x = random.nextInt(size);
-            int y = random.nextInt(size); 
-            Location randomLocation = new Location(x, y);
+        for (Location bearLocation : bearLocations) {
 
-            while (w.containsNonBlocking(randomLocation)) {
-                x = random.nextInt(size);
-                y = random.nextInt(size);
-                randomLocation = new Location(x, y);
-            }
+    if (bearLocation == null) {
 
-            w.setTile(randomLocation, new Bear()); // Placerer græs på et tilfældigt tile i verdenen
+        int x = random.nextInt(size);
+        int y = random.nextInt(size);
 
+        Location randomLocation = new Location(x, y);
+
+        while (!w.isTileEmpty(randomLocation) ||
+                w.containsNonBlocking(randomLocation)) {
+
+            x = random.nextInt(size);
+            y = random.nextInt(size);
+
+            randomLocation = new Location(x, y);
         }
+
+        w.setTile(randomLocation, new Bear());
+
+    } else {
+
+        if (w.isTileEmpty(bearLocation) &&
+                !w.containsNonBlocking(bearLocation)) {
+
+            w.setTile(bearLocation, new Bear());
+
+        } else {
+            System.out.println("Bjørnens position er optaget");
+        }
+    }
+}
         p.setDisplayInformation(Bear.class, new DisplayInformation(Color.WHITE, "bear"));
 
 
@@ -188,8 +235,9 @@ for (int i = 0; i < berryBushCount; i++) {
 p.setDisplayInformation(BerryBush.class, new DisplayInformation(Color.GREEN, "bush-berries"));
        
 p.show();
+
+}
         
-    }
 
     private static int getRandomCount(String range, Random random) {
         String[] parts = range.split("-"); // deleter fx 6-8 i 6 og 8, så vi kan bruge dem som min og max
@@ -202,5 +250,8 @@ p.show();
        Hole hole = new Hole();
      world.setTile(place, hole);
         Animal.addHole(hole);
-    }
+    } 
+
 }
+
+
